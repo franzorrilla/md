@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Guía Didáctica Web y Portada de la asignatura Marketing Digital - CFGS GVEC1. Docente: Fran Zorrilla.">
+  <meta name="author" content="Fran Zorrilla">
+  <title>Marketing Digital · CFGS GVEC1 | Guía Didáctica Web</title>
+  
+  <!-- Tipografía Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #0f172a;
+      --accent: #10b981;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    /* HERO SECTION */
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 80px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #93c5fd;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 780px;
+      margin: 0 auto 35px auto;
+      color: #cbd5e1;
+      font-weight: 400;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+      margin-bottom: 35px;
+    }
+
+    .stat-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* CONTENEDOR */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 50px 20px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 45px;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      color: var(--text-dark);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    /* SECCIÓN DOCENTE */
+    .teacher-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 35px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 35px;
+      margin-bottom: 60px;
+      flex-wrap: wrap;
+    }
+
+    .teacher-img-container {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .teacher-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #eff6ff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .teacher-info {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .teacher-role {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .teacher-info h3 {
+      font-size: 1.8rem;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .teacher-info p {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-size: 0.98rem;
+    }
+
+    .teacher-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background-color: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.88rem;
+      color: var(--text-dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .chip:hover {
+      background-color: #eff6ff;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* EVALUACIONES Y CONTENIDOS */
+    .eval-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    .eval-card {
+      background: white;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .eval-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    .eval-header {
+      padding: 24px;
+      color: white;
+    }
+
+    .eval-1 { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .eval-2 { background: linear-gradient(135deg, #0284c7, #0369a1); }
+    .eval-3 { background: linear-gradient(135deg, #0d9488, #0f766e); }
+
+    .eval-header .tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.9;
+      font-weight: 700;
+    }
+
+    .eval-header h3 {
+      font-size: 1.35rem;
+      margin-top: 5px;
+      font-weight: 700;
+    }
+
+    .unit-list {
+      padding: 24px;
+      list-style: none;
+      flex: 1;
+    }
+
+    .unit-item {
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .unit-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .unit-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .unit-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* PROYECTO INTERMODULAR BANNER */
+    .pim-box {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius);
+      padding: 35px;
+      margin-bottom: 60px;
+      display: flex;
+      gap: 25px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pim-icon {
+      font-size: 3rem;
+      background: white;
+      width: 70px;
+      height: 70px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .pim-content {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .pim-content h3 {
+      color: #166534;
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .pim-content p {
+      color: #15803d;
+      font-size: 0.95rem;
+    }
+
+    /* METODOLOGÍA & CERTIFICACIONES */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 30px;
+      border: 1px solid var(--border);
+    }
+
+    .info-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 15px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-card ul {
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .info-card li {
+      margin-bottom: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      background: white;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.1rem; }
+      .teacher-card { text-align: center; justify-content: center; }
+      .teacher-links { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO SECTION -->
+  <header class="hero">
+    <div class="hero-badge">🎓 CFGS GVEC1 · CURSO 2026/27</div>
+    <h1>Marketing Digital</h1>
+    <p>Guía didáctica web e itinerario formativo para dominar las herramientas en la nube, la comunicación digital, la ciberseguridad y el comercio electrónico.</p>
+    
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-number">166 h</div>
+        <div class="stat-label">Duración Total</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Bloques Evaluables</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">11</div>
+        <div class="stat-label">Unidades Didácticas</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Práctico y Aplicado</div>
+      </div>
+    </div>
+
+    <div class="hero-buttons">
+      <a href="#unidades" class="btn btn-primary">Ver Plan de Estudios</a>
+      <a href="#docente" class="btn btn-secondary">Conoce al Profesor</a>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div class="container">
+
+    <!-- SECCIÓN DOCENTE -->
+    <section id="docente" class="teacher-card">
+      <div class="teacher-img-container">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_RVC4TMjCWcdvQuJ2eHCVS5CD8CWxqy0AWgPE5PgjRA&s=10" alt="Fran Zorrilla" class="teacher-img">
+      </div>
+      <div class="teacher-info">
+        <div class="teacher-role">Profesor del Módulo</div>
+        <h3>Fran Zorrilla</h3>
+        <p>Docente especialista en Marketing Digital, Comunicación y Entornos Digitales en Ágil Formación. Mi enfoque pedagógico se centra en el descubrimiento autónomo, el trabajo colaborativo en la nube y la resolución de casos reales de negocio.</p>
+        <div class="teacher-links">
+          <a href="mailto:fran.zorrilla@agilcentros.es" class="chip">✉️ fran.zorrilla@agilcentros.es</a>
+          <a href="https://www.linkedin.com/in/franzorrilla/" target="_blank" rel="noopener noreferrer" class="chip">🔗 Perfil en LinkedIn</a>
+          <span class="chip">🏫 Ágil Formación</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOQUES DIDÁCTICOS -->
+    <div class="section-header" id="unidades">
+      <h2>Estructura del Curso</h2>
+      <p>Unidades temáticas organizadas por evaluaciones y bloques de aprendizaje</p>
+    </div>
+
+    <div class="eval-grid">
+      
+      <!-- BLOQUE 1 -->
+      <div class="eval-card">
+        <div class="eval-header eval-1">
+          <div class="tag">1ª Evaluación</div>
+          <h3>Herramientas y Tecnologías</h3>
+        </div>
+        <ul class="unit-list">
+          <li class="unit-item">
+            <div class="unit-title">U01. La Nube y SaaS ☁️</div>
+            <div class="unit-desc">Modelos de distribución, CPDs, G Suite y gestión avanzada de Google Drive.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U02. La (in)Seguridad Digital 🔐</div>
+            <div class="unit-desc">Phishing, ciberseguridad corporativa, protección en routers y redes inalámbricas.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U03. Información en la Web & SEO 🌐</div>
+            <div class="unit-desc">Búsqueda avanzada, SEO/SEM, Google Trends, Google Alerts y Deep Web.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U04. Agregadores RSS 📡</div>
+            <div class="unit-desc">Monitoreo de información, RSS y herramientas como Feedly.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U05. Foros, Wikis y Blogs 📝</div>
+            <div class="unit-desc">Gestión de contenidos con WordPress, Blogger y Google Groups.</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- BLOQUE 2 -->
+      <div class="eval-card">
+        <div class="eval-header eval-2">
+          <div class="tag">2ª Evaluación</div>
+          <h3>Interacción y Redes Sociales</h3>
+        </div>
+        <ul class="unit-list">
+          <li class="unit-item">
+            <div class="unit-title">U06. Redes Sociales en la Empresa 📲</div>
+            <div class="unit-desc">Estrategias corporativas en LinkedIn, Instagram, YouTube y herramientas de gestión.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U07. Vídeo y Comunicación Digital 🎬</div>
+            <div class="unit-desc">Creación, edición de contenido audiovisual y desarrollo de vídeos corporativos.</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- BLOQUE 3 -->
+      <div class="eval-card">
+        <div class="eval-header eval-3">
+          <div class="tag">3ª Evaluación</div>
+          <h3>Presencia Comercial & E-Commerce</h3>
+        </div>
+        <ul class="unit-list">
+          <li class="unit-item">
+            <div class="unit-title">U08. No-Code en Emprendimiento ⚡</div>
+            <div class="unit-desc">Filosofía No-Code y herramientas ágiles para validar proyectos.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U09. Dominios y Alojamiento 🌍</div>
+            <div class="unit-desc">Sistema de DNS, selección y registro de hosting y dominios web.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U10. Creación de Sitios Web 💻</div>
+            <div class="unit-desc">Diseño web comercial, usabilidad y desarrollo de plataformas corporativas.</div>
+          </li>
+          <li class="unit-item">
+            <div class="unit-title">U11. Tiendas Virtuales (E-commerce) 🛒</div>
+            <div class="unit-desc">Componentes de un e-commerce funcional y pasarelas de pago.</div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- BANNER PROYECTO INTERMODULAR -->
+    <div class="pim-box">
+      <div class="pim-icon">🚀</div>
+      <div class="pim-content">
+        <h3>Proyecto Intermodular (PIM): Selva Açaí</h3>
+        <p>Durante la 2ª y 3ª evaluación, el alumnado desarrollará parte de sus aprendizajes aplicando estrategias reales sobre <strong>Selva Açaí</strong>, conectando el Marketing Digital con la investigación comercial, el plan de marketing y la gestión económica.</p>
+      </div>
+    </div>
+
+    <!-- METODOLOGÍA Y CERTIFICACIONES -->
+    <div class="grid-2">
+      <div class="info-card">
+        <h3>📋 Metodología y Cuadernillos</h3>
+        <ul>
+          <li><strong>Material Propio:</strong> Elaborado íntegramente por el docente, disponible en el Aula Virtual sin necesidad de libro de texto comercial.</li>
+          <li><strong>Cuadernillos Digitales:</strong> Documentos secuenciales con entregas en la nube e investigación guiada.</li>
+          <li><strong>Aprendizaje Activo:</strong> Fomento del trabajo colaborativo, la resolución de problemas y la autonomía digital.</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>🏆 Certificaciones Complementarias</h3>
+        <ul>
+          <li><strong>Google Actívate:</strong> Fundamentos de Marketing Digital (40 h).</li>
+          <li><strong>Google Analytics:</strong> Certificación oficial de analítica web.</li>
+          <li><strong>Comercio Electrónico:</strong> Cursos especializados en desarrollo e-commerce y transformación digital.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer>
+    <p>Módulo Profesional de Marketing Digital · CFGS Gestión de Ventas y Espacios Comerciales (GVEC1)<br>Ágil Formación · Docente: Fran Zorrilla</p>
+  </footer>
+
+</body>
+</html>
