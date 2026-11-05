@@ -10,8 +10,8 @@ La versión de aula está aquí:
 
 ## 1. Instalación con la cuenta Ágil Centros
 
-1. Entra en https://script.google.com/home/projects/create con **fran.zorrilla@agilcentros.es**.
-2. Ponle de nombre **MISIÓN 404 · Servidor de aula**.
+1. Abre la [HDC de MISIÓN 404](https://docs.google.com/spreadsheets/d/17DlGd_smFvJ5wJ6z3lc34DlNZOVOH4is2f83mbESEvI/edit) con **fran.zorrilla@agilcentros.es** y elige **Extensiones → Apps Script**. Esto crea un proyecto asociado a la HDC.
+2. Ponle de nombre **MISIÓN 404 · Servidor de aula**. Si ya tiene un proyecto con código propio, no sobrescribas ese código: usa un proyecto Apps Script independiente.
 3. Sustituye todo el contenido de `Code.gs` por el código de [Code.gs](./Code.gs).
 4. En el menú izquierdo pulsa **+** → **HTML**, crea un archivo llamado **Index** y pega TODO el contenido de [Index.html](./Index.html). No añadas etiquetas HTML adicionales.
 5. En **Configuración del proyecto → Propiedades del script**, añade:
