@@ -118,6 +118,46 @@
 
 .live-gate{max-width:520px;margin:60px auto}
 #app .tag.live{color:#93f3d4}
+
+.a4-hero{background:radial-gradient(circle at 85% 16%,#304d5f 0%,transparent 42%),linear-gradient(140deg,#162a40,#101622);border:1px solid #517e8c}
+.a4-hero h2{font-size:clamp(27px,4vw,45px);max-width:740px;letter-spacing:-.04em;margin:18px 0}
+.a4-hero p{max-width:730px}
+.a4-countdown{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #547587;padding:10px 0;flex-wrap:wrap;gap:12px}
+.a4-countdown span{font-size:11px;letter-spacing:.15em;color:#b8d6e1}
+.a4-countdown strong{font:700 clamp(23px,4vw,37px) 'Space Grotesk';letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.a4-countdown small{font-size:15px;color:#a3bacb}
+.a4-timeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin:17px 0}
+.a4-timeline>div{border-top:2px solid #477080;background:#142534;padding:10px 9px 12px;display:flex;flex-direction:column;gap:4px}
+.a4-timeline b{font:700 13px 'Space Grotesk';color:#a9ebdf}
+.a4-timeline span{font-size:11px;color:#a5bcc8}
+.a4-sample{padding:13px;border-radius:8px;background:#dcebe7;border:1px solid #8fb1a8}
+.a4-sample.risk{background:#f9e9db;border-color:#d9a48c}
+.a4-sample p{color:#17313d!important;font-weight:700;font-size:16px}
+.a4-sample small{color:#4a5861}
+.a4-injection{background:#2d1b28;border-left:4px solid #e9817a;color:#ffe0de;padding:16px;border-radius:8px;margin:14px 0}
+.a4-injection p{color:inherit!important}
+.a4-ticket{background:repeating-linear-gradient(135deg,#123543,#123543 14px,#123947 14px,#123947 28px);border:1px solid #59a59a;padding:18px;border-radius:13px;margin:15px 0}
+.a4-ticket strong{display:block;color:#b0fff0;font:700 30px 'Space Grotesk';margin:9px 0;letter-spacing:.03em}
+.a4-ticket p{margin:4px 0 0;font-size:13px;color:#d5e6e8}
+.a4-message{background:#132d3d;border:1px solid #355d6b;padding:13px 15px;border-radius:9px;margin:10px 0}
+.a4-message p{margin:7px 0;font-size:13px}
+.a4-message small{color:#a3bcca}
+.a4-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0}
+.a4-board-tile{background:#132b3d;border:1px solid #376174;border-radius:11px;padding:16px;display:flex;flex-direction:column;gap:7px}
+.a4-board-tile strong{font:700 16px 'Space Grotesk'}
+.a4-board-tile small{font-size:12px;color:#b2cbd2;line-height:1.4}
+.a4-seal{display:flex;gap:16px;align-items:center;border:1px dashed #7c91a3;border-radius:13px;background:#172b38;padding:20px;margin:18px 0}
+.a4-seal-icon{font-size:33px}
+.a4-seal p{margin:6px 0 0;font-size:13px}
+.a4-ending{border-radius:14px;padding:clamp(20px,4vw,36px);margin:20px 0;background:#1b323c;border:1px solid #76bcae}
+.a4-ending.good{background:linear-gradient(135deg,#183a39,#12293d);border-color:#50c8a7}
+.a4-ending.bad{background:linear-gradient(135deg,#49242a,#242735);border-color:#d88379}
+.a4-ending.hold{background:linear-gradient(135deg,#3c3424,#25313c);border-color:#ba9766}
+.a4-ending h2{font-size:clamp(27px,4vw,48px);letter-spacing:-.035em;margin:15px 0;line-height:1.09}
+.a4-ending p{max-width:790px;line-height:1.7}
+.a4-director-reason{padding-top:14px;border-top:1px solid #647d81;margin-top:15px;font-size:13px}
+@media(max-width:700px){.a4-timeline{grid-template-columns:repeat(3,minmax(0,1fr))}.a4-board{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -538,6 +578,111 @@ function handleAct3Submit(id,form){
   t.a3Decision={choice:c.value,refs,fact,unknown,measure,by:actor.code,at:state.elapsed};
   log("acto3-decision","Decisión de contención y alcance del incidente",actor.team,actor.code);
   say("Conclusión registrada para la célula. Las hipótesis no verificadas permanecen identificadas.");return true;
+ }
+ return false;
+}
+function renderAct4(){
+ if(min()<180)return `${title('Acto IV · Cuenta atrás','El comité de crisis todavía no ha emitido el último informe. Continúa con las pruebas disponibles.')}`;
+ const t=team(actor.team),u=me(),info=ACT4[actor.team],p=ACT4_ROLE_PROMPTS[actor.code];
+ const docs=t.a4Docs||[],contacts=t.a4Contacts||[],decision=t.a4Decision,indiv=u.a4Individual;
+ const final=state.finalOutcome||{},ready=min()>=205&&docs.length===3,decisionReady=min()>=245&&ready&&contacts.length>=2;
+ const teamProgress=state.teamProgress?.[actor.team]||{individuals:indiv?1:0,reflections:u.a4Reflection?1:0};
+ const timeLabel=m=>{const x=8*60+m;return `${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`};
+ if(openedA4){
+  const doc=info.docs.find(x=>x.id===openedA4);
+  if(doc&&view==="a4-phase2"&&min()>=doc.unlock)return `${title('Documento '+doc.id,info.title+' · '+doc.kind+' · '+doc.time)}
+  <div class="dock"><button class="button secondary sm" data-action="a4-close-doc">← Volver al expediente</button><span class="pill">${doc.kind} · ${doc.time}</span></div>
+  <div class="paper" style="margin-top:16px">${doc.body}<div class="divider" style="background:#d4dde1"></div><div class="paperid">EXPEDIENTE IV · ${doc.id} · EL ORIGEN DE UNA INSTRUCCIÓN IMPORTA</div></div>`;
+  openedA4=null;
+ }
+ const stages=[
+ ["a4-phase1","01","Tu primera decisión","Respuesta individual ante el cierre de crisis",!!indiv],
+ ["a4-phase2","02","Expediente de recuperación","Tres pruebas específicas de tu célula",docs.length===3],
+ ["a4-phase3","03","Mesa de crisis","Dos contrastes externos y un plan compartido",!!decision],
+ ["a4-phase4","04","13:00 · Decisión final","Ratificación de Dirección y reflexión individual",!!u.a4Reflection]
+ ];
+ const route=stages.map(([id,n,label,desc,done])=>`<button class="a2-stage-tile" data-action="view" data-view="${id}"><span class="a2-stage-num">${n}</span><span class="a2-stage-text"><strong>${label}</strong><small>${desc}</small></span><span class="a2-stage-state">${done?'✓':'Abrir →'}</span></button>`).join("");
+ const docCards=info.docs.map(doc=>{
+  const unlocked=min()>=doc.unlock,seen=docs.includes(doc.id);
+  return `<div class="a2-proof ${unlocked?'':'locked'}"><div><div class="smallcaps">${unlocked?doc.kind+' · '+doc.time:'VALIDACIÓN PENDIENTE · '+timeLabel(doc.unlock)}</div><strong>${unlocked?doc.title:'Informe todavía no publicado'}</strong><p>${unlocked?(seen?'Consultado ✓':'Disponible para análisis'):'El centro de operaciones está consolidando datos.'}</p></div>${unlocked?`<button class="button secondary sm" data-action="a4-open-doc" data-id="${doc.id}">${seen?'Revisar':'Abrir evidencia →'}</button>`:'<span class="pill">En curso</span>'}</div>`;
+ }).join("");
+ const refs=docs.map(id=>{const d=info.docs.find(x=>x.id===id);return `<label class="a2-check"><input type="checkbox" name="a4-ref" value="${id}"><span>${id} · ${d?.title||''}</span></label>`}).join("");
+ const refsOthers=contacts.map(c=>`<label class="a2-check"><input type="checkbox" name="a4-ref" value="${ACT4[c.team].source}@${c.team}"><span>${ACT4[c.team].source} · Célula ${c.team}</span></label>`).join("");
+ const otherRows=contacts.map(c=>`<div class="a4-message"><div class="smallcaps">${c.team} / ${ACT4[c.team].source}</div><p>${esc(ACT4[c.team].finding)}</p><small>Interpretación: ${esc(c.reason)}</small></div>`).join("");
+ const board=Object.keys(ACT4).map(key=>{
+   const x=state.finalBoard?.[key],submitted=!!x?.submitted;
+   return `<div class="a4-board-tile"><span class="smallcaps">CÉLULA ${key}</span><strong>${submitted?'Informe recibido':'Informe pendiente'}</strong><small>${min()>=300&&submitted?esc(ACT4[key].choices[Number(x.choice)]):'Protocolo 404 / comité de crisis'}</small></div>`;
+ }).join("");
+ const resultTitle=final.choice==='staged'?'LANZAMIENTO CONTROLADO':final.choice==='full'?'INCIDENTE EN PRODUCCIÓN':final.choice==='pause'?'LANZAMIENTO APLAZADO':'SIN AUTORIZACIÓN DE SALIDA';
+ const resultBody=final.choice==='staged'?'PROYECTO CERO sale mediante una página y creatividades verificadas. El envío masivo de CRM continúa suspendido; el agente NORA trabaja con permisos mínimos y los registros quedan preservados. La investigación de la posible exposición sigue abierta.'
+ :final.choice==='full'?'La liberación sin controles permite que el borrador no autorizado alcance el entorno de publicación. La empresa activa la retirada del mensaje y debe informar de un incidente de comunicación. La extracción de datos personales sigue sin estar demostrada.'
+ :final.choice==='pause'?'La dirección detiene la campaña de las 13:00. Se evitan los envíos no autorizados y se preservan pruebas, aunque se asume el coste de retrasar un lanzamiento comercial importante. El plan de recuperación queda documentado.'
+ :'No existe una autorización de Dirección registrada para las 13:00. El protocolo mantiene bloqueados los envíos automatizados y el lanzamiento queda pendiente de revisión.';
+ const reflection=u.a4Reflection;
+ return `${title('Acto IV · El protocolo fantasma','La última decisión · '+info.title)}
+ ${view==='act4'?`<div class="screenintro a4-hero"><div class="scene-label">COMITÉ DE CRISIS · 11:00</div><div class="a4-countdown"><span>ÚLTIMA VENTANA</span><strong>${now()} <small>/ 13:00</small></strong></div><h2>El lanzamiento no espera. Las pruebas tampoco.</h2><p>La investigación revela que una fuente documental utilizada por NORA contenía instrucciones no autorizadas. Hay un borrador sospechoso, pero no se ha demostrado un envío de campaña ni una extracción de datos. Tenéis dos horas para preparar una salida defendible.</p><div class="dock"><span class="pill">Célula ${actor.team}</span><span class="pill">${info.title}</span></div></div>
+ <div class="a4-timeline"><div><b>11:00</b><span>Evaluación</span></div><div><b>11:25</b><span>Pruebas</span></div><div><b>11:35</b><span>Contraste</span></div><div><b>12:05</b><span>Plan</span></div><div><b>12:30</b><span>Dirección</span></div><div><b>13:00</b><span>Desenlace</span></div></div>
+ <div class="card"><div class="smallcaps">ÚLTIMO ACTO · CUATRO FASES</div><h3 style="margin:9px 0 14px">Una conclusión que resista preguntas</h3><div class="a2-stage-list">${route}</div></div>`:''}
+ ${view==='a4-phase1'?`<div class="card"><div class="smallcaps">FASE 01 · DECISIÓN PERSONAL</div><h3 style="margin:9px 0">${info.title}</h3><p>${info.lead}</p><div class="a3-memo"><span class="a3-memo-mark">!</span><p>Todo parece urgente. Antes de actuar, identifica la evidencia, los permisos necesarios y quién está autorizado para decidir.</p></div><div class="divider"></div><div class="smallcaps">ENCARGO PERSONAL · ${esc(actor.code)} · ${ROLE_NAMES[Number(actor.code.slice(-1))-1]}</div><h3 style="margin:9px 0">${p.q}</h3>
+ ${indiv?`<div class="success">Respuesta individual registrada. La decisión permanece vinculada a tu operador.</div><p class="micro">Elegiste: ${esc(p.choices[Number(indiv.choice)])}</p><div class="dock"><button class="button secondary" data-action="view" data-view="a4-phase2">Abrir documentación →</button></div>`:`<form id="a4-individual-form"><div class="a2-choices">${p.choices.map((a,i)=>`<label><input type="radio" name="a4-choice" value="${i}" required>${esc(a)}</label>`).join("")}</div><div class="field"><label class="label" for="a4-reason">Justifica qué sabes, qué falta y cuál es el riesgo comercial (mínimo 55 caracteres)</label><textarea id="a4-reason" required minlength="55" placeholder="El registro confirma... No podemos asegurar... La medida evita..."></textarea></div><button class="button">Registrar mi decisión →</button></form>`}</div>`:''}
+ ${view==='a4-phase2'?`<div class="card"><div class="smallcaps">FASE 02 · EXPEDIENTE IV</div><h3 style="margin:9px 0">Separar los hechos de la urgencia</h3><p>Tu célula tiene una parte de la respuesta. Estudia los tres registros, incluidos los que lleguen durante el análisis, para no extrapolar conclusiones.</p><div class="a2-grid">${docCards}</div>${ready?`<div class="success">Expediente de célula completo. Ya podéis contrastarlo con otros equipos.</div><div class="dock"><button class="button secondary sm" data-action="view" data-view="a4-phase3">Ir a la mesa de crisis →</button></div>`:`<div class="warning">${min()<205?'El tercer informe llega a las 11:25. Consulta las evidencias disponibles.':'Debéis abrir los tres documentos antes de defender una conclusión.'}</div>`}</div>`:''}
+ ${view==='a4-phase3'?`<div class="card"><div class="smallcaps">FASE 03 · CONSEJO DE CRISIS</div><h3 style="margin:9px 0">El diagnóstico es colectivo</h3><p>${info.question}</p>
+ ${!ready||min()<215?`<div class="warning">${min()<215?'Los equipos están terminando su análisis. La mesa de crisis se abre a las 11:35.':'Necesitáis revisar los tres documentos de la célula.'}</div><div class="dock"><button class="button secondary sm" data-action="view" data-view="a4-phase2">Volver al expediente →</button></div>`:`<div class="a4-ticket"><div class="smallcaps">CÓDIGO DE EVIDENCIA · ${actor.team}</div><strong>${info.share}</strong><p>${info.finding}</p></div><div class="a3-memo"><span class="a3-memo-mark">2</span><p>Para cerrar el informe debéis contrastar <strong>dos células diferentes</strong>. Una opinión similar no basta: preguntad qué documento respalda lo que afirman.</p></div>
+ ${otherRows?`<div class="smallcaps" style="margin-top:18px">INFORMES CONTRASTADOS</div>${otherRows}`:''}
+ ${contacts.length<3?`<form id="a4-cross-form"><div class="field"><label class="label" for="a4-code">Identificador recibido de otra célula</label><input id="a4-code" autocomplete="off" required placeholder="IV-..."></div><div class="field"><label class="label" for="a4-cross-reason">Qué acredita y qué NO acredita esta prueba (mínimo 45 caracteres)</label><textarea id="a4-cross-reason" required minlength="45" placeholder="Su registro confirma... Sin embargo no demuestra..."></textarea></div><button class="button secondary">Incorporar información →</button></form>`:''}
+ <div class="divider"></div><div class="smallcaps">DECISIÓN COMPARTIDA · 12:05</div><h3 style="margin:9px 0">Protocolo de salida de ${actor.team}</h3>
+ ${decision?`<div class="success"><strong>Plan de célula registrado.</strong> Ya se ha entregado al comité de Dirección.</div><p>${esc(info.choices[Number(decision.choice)])}</p><div class="dock"><button class="button secondary sm" data-action="view" data-view="a4-phase4">Consultar resolución →</button></div>`:!decisionReady?`<div class="warning">${min()<245?'La deliberación permanece abierta hasta las 12:05.':'Necesitáis al menos dos contrastes de otras células y el expediente completo.'}</div>`:`<p class="micro">Respuestas individuales de la célula registradas: ${teamProgress.individuals}/3. Las decisiones deberán apoyarse en las aportaciones de al menos dos integrantes.</p><form id="a4-team-form"><div class="a2-choices">${info.choices.map((c,i)=>`<label><input name="a4-team-choice" type="radio" value="${i}" required>${esc(c)}</label>`).join("")}</div><label class="label">Selecciona al menos una prueba propia y dos contrastadas (de células diferentes).</label><div class="a2-grid"><div>${refs}</div><div>${refsOthers}</div></div><div class="field"><label class="label" for="a4-fact">Hecho probado (mínimo 45 caracteres)</label><textarea id="a4-fact" minlength="45" required placeholder="Consta en la evidencia..."></textarea></div><div class="field"><label class="label" for="a4-open">Lo que todavía no podemos demostrar (mínimo 45 caracteres)</label><textarea id="a4-open" minlength="45" required placeholder="Todavía no consta..."></textarea></div><div class="field"><label class="label" for="a4-plan">Propuesta y consecuencias sobre clientes, sistemas y negocio (mínimo 100 caracteres)</label><textarea id="a4-plan" minlength="100" required placeholder="Proponemos... Permitirá... Nos comprometemos a..."></textarea></div><div class="field"><label class="label" for="a4-contingency">Qué haríais si aparece un nuevo indicador de ataque (mínimo 60 caracteres)</label><textarea id="a4-contingency" minlength="60" required placeholder="Detendríamos... Comunicaríamos... Mantendríamos la trazabilidad..."></textarea></div><button class="button">Registrar plan final de célula →</button></form>`}</div>`}</div>`:''}
+ ${view==='a4-phase4'?`<div class="card"><div class="smallcaps">FASE 04 · DECISIÓN FINAL</div><h3 style="margin:9px 0">El comité tiene la última palabra</h3><p>Las cuatro células entregan su propio protocolo. Dirección decide cómo se actuará a las 13:00.</p><div class="a4-board">${board}</div>
+ ${min()<300?`<div class="a4-seal"><span class="a4-seal-icon">⌛</span><div><strong>Resolución sellada hasta las 13:00</strong><p>La Dirección consolidará los informes a partir de las 12:30. Revisad vuestro plan y las evidencias antes del cierre.</p></div></div>`:`<div class="a4-ending ${final.choice==='staged'?'good':final.choice==='full'?'bad':'hold'}"><div class="smallcaps">DICTAMEN FINAL · 13:00</div><h2>${resultTitle}</h2><p>${resultBody}</p>${final.reason?`<div class="a4-director-reason"><strong>Motivo de Dirección:</strong> ${esc(final.reason)}</div>`:''}</div><div class="a3-memo"><span class="a3-memo-mark">?</span><p>¿Qué parte del problema se resolvió y qué incertidumbre permanece? Un buen protocolo de seguridad no consiste en afirmar que todo está controlado, sino en saber qué pruebas sostienen cada decisión.</p></div><div class="divider"></div><div class="smallcaps">CIERRE PERSONAL · APRENDIZAJE</div><h3 style="margin:9px 0">Tu informe posterior al incidente</h3>${reflection?`<div class="success"><strong>Reflexión individual entregada.</strong> Tu registro final está disponible para copiar y presentar.</div><div class="dock"><button class="button secondary" data-action="copy-final">Copiar mi informe final →</button></div>`:`<form id="a4-reflection-form"><div class="field"><label class="label" for="a4-learn">¿Qué creías al principio y qué evidencia te hizo cambiar de opinión? (mínimo 65 caracteres)</label><textarea id="a4-learn" minlength="65" required placeholder="En un primer momento pensé... Tras examinar... cambié de opinión porque..."></textarea></div><div class="field"><label class="label" for="a4-boundary">Distingue un hecho demostrado de una hipótesis que sigue abierta (mínimo 60 caracteres)</label><textarea id="a4-boundary" minlength="60" required placeholder="Sabemos que... No sabemos todavía si..."></textarea></div><div class="field"><label class="label" for="a4-transfer">¿Qué control aplicarías en un proyecto real de Marketing Digital? (mínimo 65 caracteres)</label><textarea id="a4-transfer" minlength="65" required placeholder="Antes de publicar... comprobaría... porque..."></textarea></div><button class="button">Entregar reflexión y cerrar misión →</button></form>`}</div>`}</div>`:''}
+ ${view==='act4'||view==='a4-phase1'?`<div class="dock" style="margin-top:17px"><button class="button secondary sm" data-action="view" data-view="a4-phase2">Siguiente fase →</button></div>`:''}
+ <p class="micro" style="margin-top:20px">SIMULACIÓN · Los cambios se registran en la HDC. Las notas requieren evaluación docente; ninguna hipótesis de filtración debe presentarse como un hecho sin pruebas.</p>`;
+}
+function handleAct4Submit(id,form){
+ if(!["a4-individual-form","a4-cross-form","a4-team-form","a4-reflection-form"].includes(id))return false;
+ if(!actor||min()<180){say('El acto final todavía no está disponible.','error');return true}
+ const t=team(actor.team),u=me(),info=ACT4[actor.team];
+ if(id==="a4-individual-form"){
+  if(u.a4Individual){say('Tu respuesta ya está registrada.','error');return true}
+  const c=form.querySelector('[name="a4-choice"]:checked'),reason=(form.querySelector("#a4-reason")?.value||"").trim();
+  if(!c||reason.length<55){say('Elige una medida y justifica con al menos 55 caracteres.','error');return true}
+  state.users[actor.code]??={};
+  state.users[actor.code].a4Individual={choice:c.value,reason,by:actor.code,at:state.elapsed};
+  log("acto4-individual","Primera interpretación del acto final",actor.team,actor.code);
+  say('Valoración personal registrada. Abre las evidencias.');return true;
+ }
+ if(id==="a4-cross-form"){
+  if(min()<215||(t.a4Docs||[]).length!==3){say('Termina el expediente antes de intercambiar conclusiones.','error');return true}
+  const code=(form.querySelector("#a4-code")?.value||"").trim().toUpperCase();
+  const other=Object.keys(ACT4).find(k=>ACT4[k].share===code);
+  const reason=(form.querySelector("#a4-cross-reason")?.value||"").trim();
+  if(!other||other===actor.team||reason.length<45){say('Introduce una prueba de otra célula y razona sus límites.','error');return true}
+  t.a4Contacts??=[];
+  if(t.a4Contacts.some(c=>c.team===other)){say('Ya habíais incorporado ese equipo. Consultad otro distinto.','error');return true}
+  t.a4Contacts.push({team:other,exchangeCode:code,reason,source:ACT4[other].source,at:state.elapsed,by:actor.code});
+  log("acto4-contraste","Contraste del expediente con "+other,actor.team,actor.code);
+  say('La prueba externa se ha compartido con tu célula.');return true;
+ }
+ if(id==="a4-team-form"){
+  if(min()<245||(t.a4Docs||[]).length!==3||(t.a4Contacts||[]).length<2){say('Esperad a las 12:05 y reunid tres pruebas propias y externas.','error');return true}
+  if(t.a4Decision){say('El informe colectivo ya se ha presentado.','error');return true}
+  const c=form.querySelector('[name="a4-team-choice"]:checked'),refs=[...form.querySelectorAll('[name="a4-ref"]:checked')].map(x=>x.value);
+  const fact=(form.querySelector('#a4-fact')?.value||"").trim(),unknown=(form.querySelector('#a4-open')?.value||"").trim(),plan=(form.querySelector('#a4-plan')?.value||"").trim(),contingency=(form.querySelector('#a4-contingency')?.value||"").trim();
+  const myRefs=refs.filter(ref=>(t.a4Docs||[]).includes(ref));
+  const external=refs.filter(ref=>(t.a4Contacts||[]).some(x=>ref===x.source+"@"+x.team));
+  if(!c||myRefs.length<1||external.length<2||new Set(external).size<2||fact.length<45||unknown.length<45||plan.length<100||contingency.length<60){say('Cita una prueba de tu expediente y dos de otras células. Completa hechos, incertidumbres, plan y contingencia.','error');return true}
+  t.a4Decision={choice:c.value,refs,fact,unknown,plan,contingency,by:actor.code,at:state.elapsed};
+  log("acto4-decision","Plan final de la célula",actor.team,actor.code);
+  say('Plan final registrado para el comité de Dirección.');return true;
+ }
+ if(id==="a4-reflection-form"){
+  if(min()<300){say('La reflexión se abre después del dictamen de las 13:00.','error');return true}
+  if(u.a4Reflection){say('Tu reflexión final ya figura como entregada.','error');return true}
+  const learn=(form.querySelector('#a4-learn')?.value||"").trim(),boundary=(form.querySelector('#a4-boundary')?.value||"").trim(),transfer=(form.querySelector('#a4-transfer')?.value||"").trim();
+  if(learn.length<65||boundary.length<60||transfer.length<65){say('Desarrolla las tres respuestas con ejemplos específicos del caso.','error');return true}
+  state.users[actor.code]??={};
+  state.users[actor.code].a4Reflection={learn,boundary,transfer,by:actor.code,at:state.elapsed};
+  log("acto4-reflexion","Reflexión individual final",actor.team,actor.code);
+  say('Reflexión final registrada. Puedes copiar el informe de tu misión.');return true;
  }
  return false;
 }
