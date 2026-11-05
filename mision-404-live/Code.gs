@@ -152,7 +152,7 @@ function snapshot_(session) {
     }
     const approvals=sheet_(M404.control).getRange(3,1,4,2).getValues();
     const approvalCodes={};for(const r of approvals)approvalCodes[String(r[0]).replace('approval_','')]=String(r[1]||'');
-    return {state:state,revision:clockRow_().revision+'-'+revision,approvalCodes:approvalCodes,mode:'teacher'};
+    return {state:state,revision:clockRow_().revision+'-'+Math.floor(c.elapsed/60)+'-'+revision,approvalCodes:approvalCodes,mode:'teacher'};
   }
   const team=readTeam_(session.team),user=readPerson_(session.personalCode);
   state.teams[session.team]=team.data;
@@ -164,7 +164,7 @@ function snapshot_(session) {
     const last=finalOverview_(Math.floor(c.elapsed/60),false,perTeam);
     state.finalBoard=last.board;state.finalOutcome=last.outcome;
   }
-  revision=clockRow_().revision+'-'+team.rev+'-'+user.rev;
+  revision=clockRow_().revision+'-'+Math.floor(c.elapsed/60)+'-'+team.rev+'-'+user.rev;
   return {state:state,revision:revision,mode:'student',
     actor:{team:session.team,code:session.code,name:session.name,role:session.role}};
 }
@@ -231,10 +231,14 @@ function docId_(team,id,act) {
 }
 function verifyRefs_(refs,own,contacts,phase,team) {
   if(!Array.isArray(refs)||refs.length<2||refs.length>8)throw Error('Debes citar entre dos y ocho referencias.');
-  const ownOk=refs.some(x=>own.includes(x));
-  const otherOk=refs.some(x=>contacts.some(c=>x===c.source+'@'+c.team));
+  const list=refs.map(x=>clean_(x,50));
+  if(new Set(list).size!==list.length)throw Error('No se pueden citar referencias duplicadas.');
+  const allowed=new Set(own.concat(contacts.map(c=>c.source+'@'+c.team)));
+  if(!list.every(x=>allowed.has(x)))throw Error('Se ha citado una referencia que no figura en los informes validados.');
+  const ownOk=list.some(x=>own.includes(x));
+  const otherOk=list.some(x=>contacts.some(c=>x===c.source+'@'+c.team));
   if(!ownOk||!otherOk)throw Error('Faltan fuentes propias y otra célula verificada.');
-  return refs.map(x=>clean_(x,50));
+  return list;
 }
 function runOperation_(s,op,p,c) {
   const team=s.team,code=s.code,td=readTeam_(team),ud=readPerson_(s.personalCode);
@@ -462,7 +466,10 @@ function apiAdminCommand(token,op,body) {
       teams.getRange(2,2,4,3).setValues(M404.teamNames.map(t=>['{}',0,new Date()]));
       students.getRange(2,4,12,3).setValues(Array.from({length:12},()=>['{}',0,new Date()]));
       clock.elapsed=0;clock.running=false;clock.startedAt=null;writeClock_(clock);
-      writeEvent_(s,'CONTROL','Reinicio','reset','Reinicio del estado','Se conservan los registros históricos de 03_Eventos','');
+      sheet_(M404.control).getRange(9,1,1,3).setValues([['final_decision',JSON.stringify({choice:'',reason:'',by:'',at:0}),new Date()]]);
+      const ctrl=sheet_(M404.control);
+      for(let i=0;i<4;i++)ctrl.getRange(i+3,2,1,2).setValues([['AUT-'+random_().slice(0,10),new Date()]]);
+      writeEvent_(s,'CONTROL','Reinicio','reset','Reinicio de equipos, alumnado, dictamen y autorizaciones','Se conservan los registros históricos de 03_Eventos','');
     } else throw Error('Control docente no reconocido.');
     return {snapshot:snapshot_(s)};
   } finally {lock.releaseLock()}
