@@ -787,6 +787,49 @@ function exportAct3(){
  }
  csv(rows,"mision404-acto3-demo.csv");
 }
+function renderAct4Audit(){
+ const teams=Object.keys(ACT4),total=teams.filter(k=>!!team(k).a4Decision).length,correct=teams.filter(k=>Number(team(k).a4Decision?.choice)===ACT4[k].correct).length;
+ const result=state.finalOutcome||{},readyForStaged=total===4&&correct===4;
+ const rows=teams.map(k=>{
+  const d=team(k),v=d.a4Decision,p=state.teamProgress?.[k]||{individuals:0,reflections:0};
+  return `<tr><td><strong>${k}</strong></td><td>${p.individuals}/3</td><td>${(d.a4Docs||[]).length}/3</td><td>${(d.a4Contacts||[]).length}/2</td><td>${v?'Entregado':'Pendiente'}</td><td>${v?(Number(v.choice)===ACT4[k].correct?'Medida adecuada; revisar argumentos.':'Medida arriesgada; requiere revisión.'):'—'}</td><td>${p.reflections}/3</td></tr>`;
+ }).join("");
+ const notes=teams.filter(k=>team(k).a4Decision).map(k=>{
+  const v=team(k).a4Decision;
+  return `<div class="a4-message"><div class="smallcaps">CÉLULA ${k} · ${esc(v.by)} · Fuentes: ${esc(v.refs.join(', '))}</div><p><strong>Medida:</strong> ${esc(ACT4[k].choices[Number(v.choice)])}</p><p><strong>Hecho:</strong> ${esc(v.fact)}</p><p><strong>No demostrado:</strong> ${esc(v.unknown)}</p><p><strong>Plan:</strong> ${esc(v.plan)}</p><p><strong>Contingencia:</strong> ${esc(v.contingency)}</p></div>`;
+ }).join("");
+ const indiv=teams.flatMap(k=>students(k).map(code=>{
+  const u=state.users[code]||{},p=ACT4_ROLE_PROMPTS[code],i=u.a4Individual,r=u.a4Reflection;
+  return `<tr><td>${code}</td><td>${k}</td><td>${i?'Entregada':'Pendiente'}</td><td>${i?(Number(i.choice)===p.correct?'Revisar argumento':'Revisar respuesta y argumento'):'—'}</td><td>${r?'Entregada':'Pendiente'}</td></tr>`;
+ })).join("");
+ const controls=result.choice?`<div class="success"><strong>Dictamen de Dirección: ${esc(result.choice==='staged'?'Lanzamiento limitado y verificado':result.choice==='pause'?'Aplazamiento responsable':'Lanzamiento completo sin controles')}</strong><p>${esc(result.reason)}</p></div>`
+ :min()<270?`<div class="warning">El protocolo de salida se podrá ratificar desde las 12:30. Mientras tanto, revisa las evidencias de las cuatro células.</div>`
+ :`<form id="a4-director-form"><p>La resolución quedará registrada y aparecerá a los operadores a las 13:00. Una vez ratificada, no podrá sobrescribirse.</p><div class="a2-choices">
+ <label><input name="a4-director-choice" type="radio" value="staged" required ${readyForStaged?'':'disabled'}> <span><strong>Lanzamiento limitado y verificado.</strong> Landing y creatividades aprobadas, sin envío masivo CRM; NORA supervisada. ${readyForStaged?'':'Requiere cuatro planes y todas las medidas de seguridad adecuadas.'}</span></label>
+ <label><input name="a4-director-choice" type="radio" value="pause" required><span><strong>Aplazamiento responsable.</strong> Proteger datos y preservar pruebas, aceptando el impacto comercial.</span></label>
+ <label><input name="a4-director-choice" type="radio" value="full" required ${total===4?'':'disabled'}><span><strong>Publicación sin controles.</strong> Escenario de riesgo deliberado para estudiar consecuencias. Requiere los cuatro planes.</span></label></div>
+ <div class="field"><label class="label" for="a4-director-reason">Justificación de Dirección (mínimo 45 caracteres)</label><textarea id="a4-director-reason" required minlength="45" placeholder="Autorizo / aplazo el lanzamiento porque las pruebas confirman... El riesgo restante es..."></textarea></div><button class="button">Ratificar dictamen del comité →</button></form>`;
+ return `<div class="card" style="margin-top:18px"><div class="cardheader"><div><div class="smallcaps">ACTO IV · DIRECCIÓN Y CIERRE</div><h3 style="margin:9px 0 0">Centro de decisión · 13:00</h3></div><button class="button secondary sm" data-action="export-act4">Exportar cierre CSV</button></div>
+ <div class="dock"><span class="pill">${total}/4 planes registrados</span><span class="pill">${correct}/4 medidas adecuadas</span><span class="pill">${teams.reduce((a,k)=>a+(state.teamProgress?.[k]?.reflections||0),0)}/12 reflexiones finales</span></div>
+ <div class="tablewrap"><table class="teacher-table"><thead><tr><th>Célula</th><th>Individual</th><th>Expediente</th><th>Contrastes</th><th>Plan</th><th>Orientación</th><th>Reflexiones</th></tr></thead><tbody>${rows}</tbody></table></div>
+ <div class="divider"></div><h3>Dictamen ejecutivo</h3>${controls}
+ ${notes?`<div class="divider"></div><h3>Planes de continuidad y evidencias</h3>${notes}`:''}
+ <div class="divider"></div><h3>Contribuciones individuales</h3><div class="tablewrap"><table class="teacher-table"><thead><tr><th>Operador</th><th>Célula</th><th>Primera respuesta</th><th>Orientación</th><th>Reflexión</th></tr></thead><tbody>${indiv}</tbody></table></div>
+ <p class="micro">Las opciones correctas orientan la revisión, pero la valoración final de argumentos, colaboración y reflexión es docente.</p></div>`;
+}
+function exportAct4(){
+ const rows=[['Tipo','Equipo','Operador','Rol','Estado','Decisión','Pruebas','Hecho','Incertidumbre','Plan','Contingencia','Reflexión/Aprendizaje','Transferencia']];
+ for(const teamId of Object.keys(ACT4)){
+  const d=team(teamId),v=d.a4Decision;
+  rows.push(['Equipo',teamId,v?.by||'','',v?'Entregado':'Pendiente',v?ACT4[teamId].choices[+v.choice]:'',v?.refs?.join(' | ')||'',v?.fact||'',v?.unknown||'',v?.plan||'',v?.contingency||'','','']);
+  for(const code of students(teamId)){
+   const x=state.users[code]||{},i=x.a4Individual,r=x.a4Reflection;
+   rows.push(['Individual',teamId,code,ROLE_NAMES[Number(code.slice(-1))-1],i?'Entregado':'Pendiente',i?ACT4_ROLE_PROMPTS[code].choices[Number(i.choice)]:'',i?.reason||'','','','','',r?(r.learn+'\n\n'+r.boundary):'',r?.transfer||'']);
+  }
+ }
+ rows.push(['Comité','GLOBAL','DIRECCIÓN','',state.finalOutcome?.choice?'Ratificado':'Pendiente',state.finalOutcome?.choice||'','','','',state.finalOutcome?.reason||'','','','']);
+ csv(rows,'mision404-acto4-cierre.csv');
+}
 function renderTeacher(){const teams=Object.keys(TEAMS),numUsers=Object.values(state.users).filter(x=>x.individual).length;const groupRows=teams.map(t=>{const g=gradeTeam(t),d=team(t);return `<tr><td><strong>${t}</strong></td><td>${d.decision?'Registrada':'Pendiente'}</td><td>${d.authorized?'Concedida':'Pendiente'}</td><td>${g?`<span class="grade">${g.note.toFixed(1)}</span>`:'—'}</td><td>${esc(g?.comment||'Sin evidencias suficientes.')}</td></tr>`}).join('');const userRows=teams.flatMap(t=>students(t)).map(c=>{const g=gradeIndividual(c),u=state.users[c];return `<tr><td>${c}</td><td>${TEAMS[Object.keys(TEAMS).find(t=>t[0]===c[0])].label}</td><td>${ROLE_NAMES[Number(c.slice(-1))-1]}</td><td>${g?`<span class="grade">${g.note.toFixed(1)}</span>`:'—'}</td><td>${esc(g?.comment||'Sin respuesta individual.')}</td></tr>`}).join('');return `<section>${title('Centro de dirección · Demostración','Control de reloj y autorizaciones. En modo aula exige autenticación docente. Las valoraciones automáticas son orientativas, no notas definitivas.')}
 <div class="screenintro"><div class="smallcaps">ESTADO DEL PROTOTIPO</div><h2 style="margin:9px 0">${now()} <span style="color:#92afc2;font-size:17px">/ 13:00</span></h2><div class="dock"><span class="pill">${state.running?'Reloj activo':'Reloj pausado'}</span><span class="pill">${numUsers}/12 respuestas individuales</span><span class="pill">${teams.filter(t=>!!team(t).decision).length}/4 decisiones de equipo</span></div><div class="hbuttons"><button class="button sm" data-action="toggle">${state.running?'Pausar':'Reanudar'} reloj</button><button class="button secondary sm" data-action="advance" data-minutes="10">+ 10 min</button><button class="button secondary sm" data-action="advance" data-minutes="1">+ 1 min</button><button class="button ghost sm" data-action="advance" data-minutes="20">+ 20 min</button></div><p class="micro">El tiempo se acelera manualmente para verificar los desbloqueos. La versión real utilizará reloj de servidor y pausas docentes.</p></div>
 <div class="grid2" style="margin-top:18px"><div class="card"><div class="smallcaps">Hitos de misión</div>${[[0,'Inicio'],[26,'Colaboración'],[36,'Decisión de equipo'],[46,'Autorización docente'],[60,'Acto II · Alerta de identidad'],[80,'Informes forenses'],[88,'Decisión conjunta II'],[120,'Acto III · Nueva incidencia'],[140,'Informes de correlación'],[155,'Decisión conjunta III']].map(([m,s])=>`<div class="stepbox"><div class="stepno ${min()>=m?'done':''}">${min()>=m?'✓':'○'}</div><div><strong>${m} min · ${s}</strong></div></div>`).join('')}</div><div class="card"><div class="smallcaps">${LIVE?"AUTORIZACIONES DE AULA":"Autorizaciones de demostración"}</div><h3 style="margin-top:9px">Códigos por célula</h3>${teams.map(t=>`<div class="stepbox"><div style="flex:1"><strong>${t}</strong><div class="mono" style="color:var(--accent);font-size:18px">${LIVE?(liveApprovals[t]||"No emitido"):"404-"+t}</div></div><span class="micro">${team(t).authorized?'Usada ✓':'Sin usar'}</span></div>`).join('')}<p class="micro">${LIVE?"Códigos de autorización emitidos en la HDC y validados por el servidor. Entrega cada uno únicamente a su célula.":"Claves ficticias de demostración."}</p><div class="dock">${LIVE?teams.map(t=>`<button class="button secondary sm" data-action="approve" data-team="${t}">Autorizar ${t} desde dirección</button>`).join(""):""}</div>${LIVE?'<div class="dock"><button class="button ghost sm" data-action="rotateApprovals">Renovar códigos de autorización</button></div>':''}</div></div>
