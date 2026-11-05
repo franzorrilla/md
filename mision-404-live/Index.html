@@ -239,15 +239,15 @@ function operationPayload_(op) {
   const cases={
     individual:()=>u.individual,
     document:()=>({doc:(td.readDocs||[]).slice(-1)[0]}),
-    cooperacion:()=>({team:(td.contacts||[]).slice(-1)[0]?.team}),
+    cooperacion:()=>({team:(td.contacts||[]).slice(-1)[0]?.team,exchangeCode:(td.contacts||[]).slice(-1)[0]?.exchangeCode}),
     decision:()=>td.decision,
     'acto2-individual':()=>u.a2Individual,
     'acto2-documento':()=>({doc:(td.a2Docs||[]).slice(-1)[0]}),
-    'acto2-cooperacion':()=>({team:(td.a2Contacts||[]).slice(-1)[0]?.team,reason:(td.a2Contacts||[]).slice(-1)[0]?.reason}),
+    'acto2-cooperacion':()=>({team:(td.a2Contacts||[]).slice(-1)[0]?.team,exchangeCode:(td.a2Contacts||[]).slice(-1)[0]?.exchangeCode,reason:(td.a2Contacts||[]).slice(-1)[0]?.reason}),
     'acto2-decision':()=>td.a2Decision,
     'acto3-individual':()=>u.a3Individual,
     'acto3-documento':()=>({doc:(td.a3Docs||[]).slice(-1)[0]}),
-    'acto3-contraste':()=>({team:(td.a3Contacts||[]).slice(-1)[0]?.team,reason:(td.a3Contacts||[]).slice(-1)[0]?.reason}),
+    'acto3-contraste':()=>({team:(td.a3Contacts||[]).slice(-1)[0]?.team,exchangeCode:(td.a3Contacts||[]).slice(-1)[0]?.exchangeCode,reason:(td.a3Contacts||[]).slice(-1)[0]?.reason}),
     'acto3-decision':()=>td.a3Decision
   };
   return cases[op]?cases[op]():null;
@@ -437,7 +437,7 @@ function handleAct2Submit(id,form){
   if(!other||other===actor.team||reason.length<30){say("Introduce la clave de otra célula y explica su evidencia en al menos 30 caracteres.","error");return true}
   const td=team(actor.team);td.a2Contacts??=[];
   if(td.a2Contacts.some(x=>x.team===other)){say("Esta prueba ya está registrada. Contrasta otra información.","error");return true}
-  td.a2Contacts.push({team:other,reason,at:state.elapsed,by:actor.code});
+  td.a2Contacts.push({team:other,exchangeCode:code,reason,at:state.elapsed,by:actor.code});
   log("acto2-cooperacion","Se contrasta informe de "+other,actor.team,actor.code);
   say("Informe de "+other+" incorporado. Puedes citarlo en la decisión conjunta.");return true;
  }
@@ -520,7 +520,7 @@ function handleAct3Submit(id,form){
   if(!other||other===actor.team||reason.length<40){say("Introduce el código de otra célula y explica el hallazgo en al menos 40 caracteres.","error");return true}
   t.a3Contacts??=[];
   if(t.a3Contacts.some(x=>x.team===other)){say("Ya consta esta evidencia. No hace falta registrarla otra vez.","error");return true}
-  t.a3Contacts.push({team:other,reason,by:actor.code,at:state.elapsed});
+  t.a3Contacts.push({team:other,exchangeCode:code,reason,by:actor.code,at:state.elapsed});
   log("acto3-contraste","Intercambio con célula "+other,actor.team,actor.code);
   say("La evidencia externa se ha incorporado al expediente común.");return true;
  }
@@ -617,7 +617,7 @@ function action(a,el){if(a==='teacher'){if(LIVE){teacherGate=true;teacher=false;
 document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(el)action(el.dataset.action,el)});
 document.addEventListener('submit',e=>{e.preventDefault();const id=e.target.id;if(LIVE&&id==='live-teacher-form'){liveTeacherLogin_(document.getElementById('teacher-pin').value);return}if(handleAct2Submit(id,e.target))return;if(handleAct3Submit(id,e.target))return;if(id==='login-form'){const t=document.getElementById('team-input').value;const code=document.getElementById('student-input').value.trim().toUpperCase();if(LIVE){liveLogin_(t,code);return}if(!students(t).includes(code))return say('El código no corresponde al equipo elegido. Prueba '+t[0]+'01, '+t[0]+'02 o '+t[0]+'03.','error');actor={team:t,code};state.users[code]??={};team(t);if(!state.running)state.running=true;save();view='home';log('login','Acceso de operador',t,code);render();return}
 if(id==='individual-form'){const c=e.target.querySelector('[name="individual-choice"]:checked');const reason=document.getElementById('individual-reason').value.trim();if(!c||reason.length<25)return say('Elige una respuesta y escribe una justificación de al menos 25 caracteres.','error');state.users[actor.code].individual={choice:c.value,reason,at:state.elapsed};log('individual','Misión personal entregada',actor.team,actor.code);say('Decisión individual registrada. Ahora puedes compartir lo que has aprendido.');return}
-if(id==='exchange-form'){const code=document.getElementById('exchange-code').value.trim().toUpperCase();const other=Object.keys(TEAMS).find(t=>TEAMS[t].share===code);if(!other)return say('No se ha reconocido la clave. Consulta la fuente con el otro equipo.','error');if(other===actor.team)return say('Debes consultar a otra célula para contrastar nueva información.','error');const td=team(actor.team);td.contacts??=[];if(td.contacts.some(x=>x.team===other))return say('Ya habías incorporado esta información.','error');td.contacts.push({team:other,at:state.elapsed});log('cooperacion','Fuente compartida por '+other,actor.team,actor.code);say('Pista contrastada e incorporada al expediente.');return}
+if(id==='exchange-form'){const code=document.getElementById('exchange-code').value.trim().toUpperCase();const other=Object.keys(TEAMS).find(t=>TEAMS[t].share===code);if(!other)return say('No se ha reconocido la clave. Consulta la fuente con el otro equipo.','error');if(other===actor.team)return say('Debes consultar a otra célula para contrastar nueva información.','error');const td=team(actor.team);td.contacts??=[];if(td.contacts.some(x=>x.team===other))return say('Ya habías incorporado esta información.','error');td.contacts.push({team:other,exchangeCode:code,at:state.elapsed});log('cooperacion','Fuente compartida por '+other,actor.team,actor.code);say('Pista contrastada e incorporada al expediente.');return}
 if(id==='decision-form'){const c=e.target.querySelector('[name="team-choice"]:checked');const sources=[...e.target.querySelectorAll('[name="sources"]:checked')].map(x=>x.value);const reason=document.getElementById('team-reason').value.trim();if(!c||reason.length<60||sources.length<1||sources.length>3)return say('Elige una actuación, marca de una a tres evidencias y justifica con al menos 60 caracteres.','error');const td=team(actor.team);td.decision={choice:c.value,sources,reason,at:state.elapsed,author:actor.code};log('decision','Decisión operativa registrada',actor.team,actor.code);say('Decisión de célula registrada. Las consecuencias aparecerán en los próximos actos.');return}
 if(id==='auth-form'){const code=document.getElementById('auth-code').value.trim().toUpperCase();if(LIVE){liveMutate_('authorize',{approvalCode:code});return}if(code!=='404-'+actor.team)return say('Código incorrecto para esta célula. Verificadlo presencialmente con la dirección.','error');team(actor.team).authorized={at:state.elapsed,by:actor.code};log('autorizacion','Autorización del director validada',actor.team,actor.code);say('Acceso autorizado. El informe se liberará a partir del minuto 80.');return}
 });
