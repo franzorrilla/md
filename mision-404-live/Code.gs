@@ -105,14 +105,51 @@ function lookupCredential_(code,team) {
   const role=clean_(found[4],40);
   return {type:'student',team:team,personalCode:code,name:clean_(found[2],120),role:role,code:roleKey_(team,role)};
 }
+
+function finalRecord_() {
+  const row=sheet_(M404.control).getRange(9,1,1,3).getValues()[0];
+  return parseState_(row[1]);
+}
+function teamProgress_() {
+  const people=sheet_(M404.users).getRange(2,1,12,6).getValues();
+  const result={};
+  for(const team of M404.teamNames)result[team]={individuals:0,reflections:0};
+  for(const row of people) {
+    const t=String(row[1]);if(!result[t])continue;
+    const u=parseState_(row[3]);
+    if(u.a4Individual)result[t].individuals++;
+    if(u.a4Reflection)result[t].reflections++;
+  }
+  return result;
+}
+function finalOverview_(minute,asTeacher,teamStates) {
+  const record=finalRecord_(),published=minute>=300;
+  const choice=asTeacher||published?String(record.choice||''):'';
+  const reason=asTeacher||published?clean_(record.reason,2000):'';
+  const board={};
+  for(const k of M404.teamNames) {
+    const x=teamStates[k]?.a4Decision;
+    board[k]={submitted:!!x,choice:(asTeacher||published)&&x?Number(x.choice):null};
+  }
+  return {board:board,outcome:{published:published,choice:choice,reason:reason,
+    status:published?choice||'hold':asTeacher?choice?'agreed':'pending':'sealed',
+    by:asTeacher?clean_(record.by,100):'',
+    at:asTeacher?Number(record.at)||0:0}};
+}
+
 function snapshot_(session) {
   const c=effectiveClock_(clockRow_());
-  const state={elapsed:c.elapsed,running:c.running,teams:{},users:{},events:[],phase:null};
+  const state={elapsed:c.elapsed,running:c.running,teams:{},users:{},events:[],phase:null,finalBoard:{},finalOutcome:{},teamProgress:{}};
   let revision='';
   if(session.type==='teacher') {
     for(const t of M404.teamNames){const r=readTeam_(t);state.teams[t]=r.data;revision+=r.rev+'-'}
     const entries=sheet_(M404.users).getRange(2,1,12,6).getValues();
     for(const row of entries){state.users[roleKey_(String(row[1]),String(row[2]))]=parseState_(row[3]);revision+=String(row[4]||0)+'-'}
+    if(c.elapsed>=180*60){
+      state.teamProgress=teamProgress_();
+      const last=finalOverview_(Math.floor(c.elapsed/60),true,state.teams);
+      state.finalBoard=last.board;state.finalOutcome=last.outcome;
+    }
     const approvals=sheet_(M404.control).getRange(3,1,4,2).getValues();
     const approvalCodes={};for(const r of approvals)approvalCodes[String(r[0]).replace('approval_','')]=String(r[1]||'');
     return {state:state,revision:clockRow_().revision+'-'+revision,approvalCodes:approvalCodes,mode:'teacher'};
@@ -120,6 +157,13 @@ function snapshot_(session) {
   const team=readTeam_(session.team),user=readPerson_(session.personalCode);
   state.teams[session.team]=team.data;
   state.users[session.code]=user.data;
+  if(c.elapsed>=180*60){
+    state.teamProgress=teamProgress_();
+    const all=sheet_(M404.teams).getRange(2,1,4,4).getValues();
+    const perTeam={};for(const row of all)perTeam[String(row[0])]=parseState_(row[1]);
+    const last=finalOverview_(Math.floor(c.elapsed/60),false,perTeam);
+    state.finalBoard=last.board;state.finalOutcome=last.outcome;
+  }
   revision=clockRow_().revision+'-'+team.rev+'-'+user.rev;
   return {state:state,revision:revision,mode:'student',
     actor:{team:session.team,code:session.code,name:session.name,role:session.role}};
@@ -159,7 +203,8 @@ function ensureApprovals_() {
 const M404_EXCHANGE = Object.freeze({
   I:{ALFA:'A-DR17',BRAVO:'B-PERMISOS',CHARLIE:'C-CRM',DELTA:'D-FLUJO'},
   II:{ALFA:'C-VALIDA-ELENA',BRAVO:'C-REGISTRO-23',CHARLIE:'C-MINIMIZA-23',DELTA:'C-PERMISOS-23'},
-  III:{ALFA:'III-CORREO',BRAVO:'III-SESION',CHARLIE:'III-DATOS',DELTA:'III-BRIEF'}
+  III:{ALFA:'III-CORREO',BRAVO:'III-SESION',CHARLIE:'III-DATOS',DELTA:'III-BRIEF'},
+  IV:{ALFA:'IV-ALFA',BRAVO:'IV-BRAVO',CHARLIE:'IV-CHARLIE',DELTA:'IV-DELTA'}
 });
 function verifyExchange_(act,other,code) {
   const expected=M404_EXCHANGE[act]&&M404_EXCHANGE[act][other];
@@ -302,6 +347,56 @@ function runOperation_(s,op,p,c) {
       a.a3Decision={choice:String(ch),refs:refs,fact:fact,unknown:unknown,measure:measure,at:elapsed,by:code};
       updateTeam=true;act='III';phase='Decisión';decision=String(ch);reason=measure;break;
     }
+
+    case 'acto4-individual': {
+      requireMinute(180);if(u.a4Individual)throw Error('Tu valoración final ya se registró.');
+      const ch=choice_(p.choice);reason=mustText_(p.reason,55);
+      u.a4Individual={choice:String(ch),reason:reason,at:elapsed,by:code};
+      updateUser=true;act='IV';phase='Individual';decision=String(ch);break;
+    }
+    case 'acto4-documento': {
+      requireMinute(180);if(!ownDoc(p.doc,4))throw Error('El documento no corresponde a tu célula.');
+      if(String(p.doc).endsWith('3'))requireMinute(205);
+      a.a4Docs=Array.isArray(a.a4Docs)?a.a4Docs:[];
+      if(!addUnique_(a.a4Docs,String(p.doc)))return 'duplicate';
+      updateTeam=true;act='IV';phase='Documentos';decision=String(p.doc);break;
+    }
+    case 'acto4-contraste': {
+      requireMinute(215);
+      if((a.a4Docs||[]).length!==3)throw Error('Primero hay que abrir las tres pruebas propias.');
+      const other=clean_(p.team,20).toUpperCase();
+      if(!allowedExternal_(team,other))throw Error('La fuente debe ser otra célula.');
+      verifyExchange_('IV',other,p.exchangeCode);
+      const peer=readTeam_(other).data;
+      if((peer.a4Docs||[]).length!==3)throw Error('La otra célula todavía no ha validado sus tres informes.');
+      reason=mustText_(p.reason,45);
+      a.a4Contacts=Array.isArray(a.a4Contacts)?a.a4Contacts:[];
+      if(!addUnique_(a.a4Contacts,{team:other,source:other.charAt(0)+'-43',reason:reason,at:elapsed,by:code},'team'))return 'duplicate';
+      updateTeam=true;act='IV';phase='Contraste';decision=other;break;
+    }
+    case 'acto4-decision': {
+      requireMinute(245);
+      if(a.a4Decision)throw Error('Tu célula ya entregó el plan final.');
+      if((a.a4Docs||[]).length!==3||(a.a4Contacts||[]).length<2)throw Error('Revisad el expediente y contrastad al menos dos células.');
+      const participation=sheet_(M404.users).getRange(2,1,12,6).getValues()
+        .filter(row=>row[1]===team&&!!parseState_(row[3]).a4Individual).length;
+      if(participation<2)throw Error('Al menos dos integrantes deben haber registrado su análisis individual.');
+      const ch=choice_(p.choice),fact=mustText_(p.fact,45),unknown=mustText_(p.unknown,45),
+        plan=mustText_(p.plan,100),contingency=mustText_(p.contingency,60);
+      const refs=verifyRefs_(p.refs,a.a4Docs||[],a.a4Contacts||[],4,team);
+      const external=refs.filter(ref=>(a.a4Contacts||[]).some(x=>ref===x.source+'@'+x.team));
+      if(new Set(external).size<2)throw Error('Cita pruebas de al menos dos células diferentes.');
+      a.a4Decision={choice:String(ch),refs:refs,fact:fact,unknown:unknown,plan:plan,
+        contingency:contingency,at:elapsed,by:code};
+      updateTeam=true;act='IV';phase='Plan final';decision=String(ch);reason=plan;break;
+    }
+    case 'acto4-reflexion': {
+      requireMinute(300);
+      if(u.a4Reflection)throw Error('La reflexión final ya estaba registrada.');
+      const learn=mustText_(p.learn,65),boundary=mustText_(p.boundary,60),transfer=mustText_(p.transfer,65);
+      u.a4Reflection={learn:learn,boundary:boundary,transfer:transfer,at:elapsed,by:code};
+      updateUser=true;act='IV';phase='Reflexión';decision='Entregada';reason=learn;break;
+    }
     default:throw Error('Acción desconocida.');
   }
   if(updateTeam)writeTeam_(team,a,td.rev);
@@ -340,6 +435,23 @@ function apiAdminCommand(token,op,body) {
       if(!d.data.decision)throw Error('El equipo debe entregar primero la decisión del Acto I.');
       if(!d.data.authorized){d.data.authorized={at:effective.elapsed,by:'DIRECCIÓN'};writeTeam_(t,d.data,d.rev);
         writeEvent_(s,'I','Autorización','approve',t,'Validación directa del docente','Concedida')}
+    } else if(op==='finalize') {
+      if(effective.elapsed<270*60)throw Error('La Dirección podrá cerrar la operación a partir de las 12:30.');
+      const prior=finalRecord_();
+      if(prior.choice)throw Error('La resolución final ya se ha registrado. No puede sobrescribirse.');
+      const choice=clean_(body&&body.choice,30);
+      if(!['staged','pause','full'].includes(choice))throw Error('Selecciona una de las tres decisiones.');
+      const reason=mustText_(body&&body.reason,45,1500);
+      const all=M404.teamNames.map(t=>readTeam_(t).data.a4Decision);
+      if(choice!=='pause'&&all.some(x=>!x))throw Error('Para lanzar, es imprescindible recibir los informes de las cuatro células.');
+      if(choice==='staged') {
+        const correct={ALFA:1,BRAVO:0,CHARLIE:2,DELTA:1};
+        if(M404.teamNames.some((t,i)=>Number(all[i].choice)!==correct[t]))
+          throw Error('Existen medidas de célula incompatibles con una salida controlada. El comité debe corregirlas o aplazar el lanzamiento.');
+      }
+      const record={choice:choice,reason:reason,by:'DIRECCIÓN',at:effective.elapsed};
+      sheet_(M404.control).getRange(9,1,1,3).setValues([['final_decision',JSON.stringify(record),new Date()]]);
+      writeEvent_(s,'IV','Dictamen','finalize',choice,reason,'Ratificado por Dirección');
     } else if(op==='rotateApprovals') {
       const tab=sheet_(M404.control);
       for(let i=0;i<4;i++)tab.getRange(i+3,2,1,2).setValues([['AUT-'+random_().slice(0,10),new Date()]]);
