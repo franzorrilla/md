@@ -156,6 +156,15 @@ function ensureApprovals_() {
   }
   if(dirty)tab.getRange(3,1,4,3).setValues(rows);
 }
+const M404_EXCHANGE = Object.freeze({
+  I:{ALFA:'A-DR17',BRAVO:'B-PERMISOS',CHARLIE:'C-CRM',DELTA:'D-FLUJO'},
+  II:{ALFA:'C-VALIDA-ELENA',BRAVO:'C-REGISTRO-23',CHARLIE:'C-MINIMIZA-23',DELTA:'C-PERMISOS-23'},
+  III:{ALFA:'III-CORREO',BRAVO:'III-SESION',CHARLIE:'III-DATOS',DELTA:'III-BRIEF'}
+});
+function verifyExchange_(act,other,code) {
+  const expected=M404_EXCHANGE[act]&&M404_EXCHANGE[act][other];
+  if(!expected||clean_(code,80).toUpperCase()!==expected)throw Error('Código de intercambio incorrecto. Contrástalo con el otro equipo.');
+}
 function allowedExternal_(team,foreignTeam) {
   return M404.teamNames.includes(foreignTeam)&&foreignTeam!==team;
 }
@@ -206,6 +215,7 @@ function runOperation_(s,op,p,c) {
       requireMinute(26);
       const other=clean_(p.team,20).toUpperCase();
       if(!allowedExternal_(team,other))throw Error('El intercambio debe proceder de otra célula.');
+      verifyExchange_('I',other,p.exchangeCode);
       a.contacts=Array.isArray(a.contacts)?a.contacts:[];
       if(!addUnique_(a.contacts,{team:other,at:elapsed},'team'))return 'duplicate';
       updateTeam=true;act='I';phase='Intercambio';decision=other;break;
@@ -244,6 +254,7 @@ function runOperation_(s,op,p,c) {
       requireMinute(80);if(!a.authorized)throw Error('Falta autorización docente.');
       const other=clean_(p.team,20).toUpperCase();
       if(!allowedExternal_(team,other))throw Error('La fuente debe pertenecer a otra célula.');
+      verifyExchange_('II',other,p.exchangeCode);
       reason=mustText_(p.reason,30);
       a.a2Contacts=Array.isArray(a.a2Contacts)?a.a2Contacts:[];
       if(!addUnique_(a.a2Contacts,{team:other,reason:reason,at:elapsed,by:code,source:other.charAt(0)+'-23'},'team'))return 'duplicate';
@@ -277,6 +288,7 @@ function runOperation_(s,op,p,c) {
       requireMinute(140);if((a.a3Docs||[]).length!==3)throw Error('Primero revisad las tres evidencias.');
       const other=clean_(p.team,20).toUpperCase();
       if(!allowedExternal_(team,other))throw Error('La fuente debe pertenecer a otra célula.');
+      verifyExchange_('III',other,p.exchangeCode);
       reason=mustText_(p.reason,40);
       a.a3Contacts=Array.isArray(a.a3Contacts)?a.a3Contacts:[];
       if(!addUnique_(a.a3Contacts,{team:other,reason:reason,at:elapsed,by:code,source:other.charAt(0)+'-33'},'team'))return 'duplicate';
