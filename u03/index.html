@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>U03 (Sesión 1) · Cómo encontramos información y búsqueda con IA — CFGS GVEC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --stone: #efefec;
+      --stone-line: #d4d4ce;
+      --ink: #111111;
+      --ink-muted: #555550;
+      --cobalt: #1428f5;
+      --cobalt-soft: rgba(20, 40, 245, 0.08);
+      --white: #ffffff;
+      --sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      font-size: clamp(17px, 1.12vw + 0.56vh, 25px);
+    }
+
+    html.study-mode {
+      font-size: 16px;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--stone);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Presentation Mode: Fullscreen Viewport */
+    body:not(.study-mode) {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    body:not(.study-mode) .deck {
+      height: 100vh;
+      width: 100vw;
+    }
+
+    body:not(.study-mode) .slide {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      padding: clamp(20px, 3vh, 40px) clamp(26px, 4vw, 60px) 66px;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--stone);
+      position: relative;
+      overflow-y: auto;
+    }
+
+    body:not(.study-mode) .slide.active {
+      display: flex;
+      animation: swissIn 0.15s ease-out;
+    }
+
+    /* Cobalt-inverted slides */
+    .slide.is-cobalt {
+      background: var(--cobalt) !important;
+      color: var(--white) !important;
+    }
+    .slide.is-cobalt p,
+    .slide.is-cobalt .slide-foot,
+    .slide.is-cobalt .kicker,
+    .slide.is-cobalt .muted {
+      color: rgba(255, 255, 255, 0.82) !important;
+    }
+    .slide.is-cobalt .slide-top,
+    .slide.is-cobalt .slide-foot,
+    .slide.is-cobalt .sys-row,
+    .slide.is-cobalt .axis-line {
+      border-color: rgba(255, 255, 255, 0.25) !important;
+    }
+    .slide.is-cobalt .tag-box {
+      border-color: rgba(255, 255, 255, 0.48);
+      color: var(--white);
+      background: transparent;
+    }
+    .slide.is-cobalt .idx-badge {
+      background: var(--white);
+      color: var(--cobalt);
+    }
+
+    @keyframes swissIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Study Mode */
+    body.study-mode .deck {
+      max-width: 1160px;
+      margin: 24px auto 90px;
+      padding: 0 20px;
+    }
+
+    body.study-mode .slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--stone);
+      border: 1px solid var(--stone-line);
+      padding: 36px 44px;
+      margin-bottom: 26px;
+      min-height: 600px;
+      position: relative;
+    }
+
+    .cobalt-pillar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 58%;
+      width: 6.5vw;
+      background: var(--cobalt);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .axis-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 58%;
+      border-left: 1px solid var(--stone-line);
+      pointer-events: none;
+    }
+
+    .slide-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--stone-line);
+      padding-bottom: 0.55rem;
+      margin-bottom: 0.9rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .kicker {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-muted);
+    }
+
+    .tag-box {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.22rem 0.6rem;
+      border: 1px solid var(--ink);
+      color: var(--ink);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .slide-foot {
+      border-top: 1px solid var(--stone-line);
+      padding-top: 0.5rem;
+      margin-top: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--ink-muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 4.2rem, 4.8rem);
+      font-weight: 700;
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: clamp(1.85rem, 2.55rem, 2.95rem);
+      font-weight: 700;
+      line-height: 1.03;
+      letter-spacing: -0.035em;
+      margin: 0;
+    }
+
+    h3 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.35rem;
+    }
+
+    p {
+      margin: 0 0 0.5rem;
+      color: var(--ink-muted);
+      font-size: 0.95rem;
+    }
+
+    a { color: var(--cobalt); font-weight: 600; }
+    .slide.is-cobalt a { color: var(--white); }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.86em;
+      background: rgba(17, 17, 17, 0.08);
+      padding: 0.1em 0.35em;
+    }
+
+    .sys-list { width: 100%; position: relative; }
+    .sys-row {
+      display: grid;
+      grid-template-columns: 58% 42%;
+      border-bottom: 1px solid var(--stone-line);
+      padding: 0.72rem 0;
+      align-items: center;
+      position: relative;
+    }
+    .sys-row:first-child { border-top: 1px solid var(--stone-line); }
+    .sys-left {
+      padding-right: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    .sys-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    .idx-badge {
+      position: absolute;
+      right: -1.15rem;
+      background: var(--cobalt);
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.45rem;
+      z-index: 3;
+    }
+    .sys-right { padding-left: 2rem; font-size: 0.92rem; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.35rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; }
+
+    .box {
+      border: 1px solid var(--stone-line);
+      background: var(--white);
+      padding: 1.05rem 1.2rem;
+    }
+    .box-cobalt {
+      background: var(--cobalt);
+      color: var(--white);
+      padding: 1.15rem 1.25rem;
+    }
+    .box-cobalt p, .box-cobalt li { color: rgba(255, 255, 255, 0.9); }
+    .box-black {
+      background: var(--ink);
+      color: var(--white);
+      padding: 1.15rem 1.25rem;
+    }
+    .box-black p, .box-black li { color: rgba(255, 255, 255, 0.86); }
+
+    .bracket-btn {
+      display: inline-block;
+      background: var(--cobalt);
+      color: var(--white);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.7rem 1.3rem;
+    }
+
+    .rule-note {
+      border-left: 4px solid var(--cobalt);
+      padding: 0.7rem 1.05rem;
+      background: var(--white);
+      font-size: 0.94rem;
+      color: var(--ink);
+    }
+
+    ul.clean { margin: 0; padding-left: 1.1rem; }
+    ul.clean li { margin-bottom: 0.4rem; font-size: 0.92rem; }
+
+    table.swiss-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      border-top: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      font-size: 0.9rem;
+    }
+    table.swiss-table th, table.swiss-table td {
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--stone-line);
+      text-align: left;
+      vertical-align: top;
+    }
+    table.swiss-table th {
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-muted);
+      background: var(--stone);
+    }
+    table.swiss-table tr.cobalt-row td {
+      background: var(--cobalt);
+      color: var(--white);
+    }
+
+    .serp-shell { border: 1px solid var(--ink); background: var(--white); }
+    .serp-bar {
+      background: var(--ink);
+      color: var(--white);
+      padding: 0.45rem 0.85rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .serp-zone {
+      padding: 0.65rem 0.95rem;
+      border-bottom: 1px solid var(--stone-line);
+      display: grid;
+      grid-template-columns: 185px 1fr;
+      gap: 0.9rem;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+    .serp-zone:last-child { border-bottom: none; }
+    .zone-tag {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.22rem 0.45rem;
+      border: 1px solid var(--ink);
+      text-align: center;
+    }
+    .zone-tag.is-c {
+      background: var(--cobalt);
+      color: var(--white);
+      border-color: var(--cobalt);
+    }
+
+    .dock {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: var(--white);
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 300;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+    .dock button {
+      font-family: var(--mono);
+      background: transparent;
+      color: var(--white);
+      border: none;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .dock button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+    .dock button:disabled { opacity: 0.35; cursor: default; }
+    .dock button.dock-cobalt { background: var(--cobalt); }
+    .dock-counter {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 0 8px;
+      color: #a1a1aa;
+    }
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--cobalt);
+      width: 0%;
+      z-index: 350;
+      transition: width 0.2s ease;
+    }
+
+    @media (max-width: 900px) {
+      .cobalt-pillar, .axis-line { display: none; }
+      .sys-row, .grid-2, .grid-3, .grid-4, .serp-zone { grid-template-columns: 1fr; }
+      .sys-left, .sys-right { padding: 0; }
+      .idx-badge { position: static; margin-left: 8px; }
+    }
+
+    @media print {
+      html { font-size: 14px !important; }
+      body { background: #fff; overflow: visible !important; height: auto !important; }
+      .dock, .progress-bar { display: none !important; }
+      .deck { max-width: 100%; margin: 0; padding: 0; }
+      .slide {
+        display: flex !important;
+        height: auto !important;
+        min-height: 94vh !important;
+        width: 100% !important;
+        padding: 24px 32px !important;
+        margin: 0 !important;
+        border: none !important;
+        page-break-after: always;
+        break-after: page;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" id="progressBar"></div>
+
+  <nav class="dock" aria-label="Controles">
+    <button id="prevBtn">←</button>
+    <span class="dock-counter" id="counter">01 / 16</span>
+    <button id="nextBtn" class="dock-cobalt">Siguiente →</button>
+    <button id="fsBtn" title="Pantalla completa (F)">[ Pantalla completa ]</button>
+    <button id="modeBtn">[ Modo Apuntes ]</button>
+    <button id="printBtn">[ PDF ]</button>
+  </nav>
+
+  <main class="deck" id="deck">
+
+    <!-- 01 · PORTADA -->
+    <section class="slide active">
+      <div class="cobalt-pillar"></div>
+      <div class="slide-top">
+        <span class="kicker">[ U03 · Sesión 1 de 2 · 120 minutos ]</span>
+        <span class="tag-box">CFGS GVEC · Marketing Digital</span>
+      </div>
+
+      <div class="slide-content" style="justify-content:center;gap:1.5rem;">
+        <div style="max-width:92%;">
+          <div class="kicker" style="margin-bottom:0.5rem;color:var(--cobalt);">Bloques 1 y 2</div>
+          <h1>Cómo encontramos<br>información y cómo<br>buscar con IA.</h1>
+        </div>
+
+        <div class="grid-2" style="align-items:end;margin-top:0.6rem;">
+          <p style="font-size:1.05rem;color:var(--ink);max-width:34rem;margin:0;">
+            Funcionamiento interno de Google, tipos reales de resultados en la página de búsqueda, operadores avanzados y colaboración con asistentes de IA.
+          </p>
+          <div style="display:flex;justify-content:flex-end;">
+            <div class="bracket-btn">[ Pulsa → o F para pantalla completa ]</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>CFGS Gestión de Ventas y Espacios Comerciales</span>
+        <span>01 / 16</span>
+      </div>
+    </section>
+
+    <!-- 02 · CONTEXTO 2026: QUÉ OCURRE TRAS UNA BÚSQUEDA EN GOOGLE -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ Contexto 2026 · Estudio Similarweb &amp; SparkToro ]</span>
+        <span class="tag-box">68% Zero-Click</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.75rem;align-items:center;">
+        <div style="width:100%;display:flex;justify-content:center;">
+          <img src="zero_click_2026.jpg" alt="En 2026, qué ocurre después de una búsqueda en Google (Similarweb y SparkToro)" style="max-height:66vh;max-width:100%;width:auto;border:1px solid var(--stone-line);background:#fff;object-fit:contain;" />
+        </div>
+        <div class="rule-note" style="width:100%;">
+          <strong>En resumen:</strong> El <strong>68%</strong> de las búsquedas en Google terminan sin clic (<em>Zero-Click</em>). De cada <strong>1.000 búsquedas</strong>, solo <strong>232 clics</strong> salen hacia la web abierta.
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>Fuente: Similarweb / SparkToro (Ene–Abr 2026)</span>
+        <span>02 / 16</span>
+      </div>
+    </section>
+
+    <!-- 03 · INTRODUCCIÓN Y MAPA DE LA UNIDAD -->
+    <section class="slide is-cobalt">
+      <div class="slide-top">
+        <span class="kicker">[ Introducción y mapa de la sesión ]</span>
+        <span class="tag-box">2 Horas · Puntos 1 y 2</span>
+      </div>
+
+      <div class="slide-content" style="gap:1.1rem;">
+        <h2>Por qué buscar, verificar y ser encontrados están unidos.</h2>
+
+        <div class="sys-list">
+          <div class="axis-line"></div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title">1. Cómo encontramos información</span><span class="idx-badge">55 min</span></div>
+            <div class="sys-right">Recorrido de la información, qué hace un buscador (arañas e índice), intenciones y tipos de resultados visuales en Google.</div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title">2. Buscar con intención y con IA</span><span class="idx-badge">35 min</span></div>
+            <div class="sys-right">Elegir herramienta, búsqueda avanzada con operadores, prompts efectivos y registro de fuentes.</div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title">Taller práctico en aula</span><span class="idx-badge">30 min</span></div>
+            <div class="sys-right">Análisis real de resultados SERP + investigación comercial con operadores e IA.</div>
+          </div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,0.4);padding:0.85rem 1.1rem;font-size:0.94rem;">
+          <strong>Caso inicial para abrir debate:</strong> Imagina que necesitas comprar unas zapatillas técnicas de running hoy en tu ciudad. ¿Cómo eliges tienda a partir de un buscador, un mapa o una respuesta de IA?
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>U03 · Sesión 1: Puntos 1 y 2</span>
+        <span>03 / 16</span>
+      </div>
+    </section>
+
+    <!-- 03b · NAVEGADORES Y BUSCADORES EN ESPAÑA 2026 -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información · Contexto de mercado ]</span>
+        <span class="tag-box">España 2026</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.75rem;align-items:center;flex-direction:row;justify-content:center;">
+        <img src="navegadores_buscadores_2026.jpg"
+             alt="Navegadores y Buscadores en España 2026 — Cuota de mercado"
+             style="max-height:65vh;max-width:52%;object-fit:contain;border:1px solid var(--stone-line);" />
+        <div style="max-width:42%;display:flex;flex-direction:column;gap:1rem;padding-left:1rem;">
+          <h2>Google domina más del 90% en España.</h2>
+          <div class="box">
+            <span class="kicker" style="color:var(--cobalt);">En escritorio</span>
+            <p style="margin:0;color:var(--ink);">Chrome lidera; Edge gana terreno como segunda opción por defecto en Windows; Firefox mantiene un nicho fiel.</p>
+          </div>
+          <div class="box">
+            <span class="kicker" style="color:var(--cobalt);">En móvil y tablet</span>
+            <p style="margin:0;color:var(--ink);">Chrome domina en Android, pero Safari (iOS) tiene una cuota muy significativa — lo que afecta a cómo se muestra Google Maps y los resultados locales.</p>
+          </div>
+          <div class="rule-note">
+            <strong>Implicación comercial:</strong> Cuando hablamos de posicionar un negocio en un buscador, en la práctica estamos hablando de Google casi en exclusiva.
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>Fuente: Marketing4ecommerce · Infografía: ManelValcarce.com · Análisis 2026</span>
+        <span>04 / 16</span>
+      </div>
+    </section>
+
+    <!-- 03 · 1. RECORRIDO DE LA INFORMACIÓN -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información ]</span>
+        <span class="tag-box">Ecosistema 2026</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.85rem;">
+        <h2>¿Por dónde llega la información al comprador hoy?</h2>
+
+        <!-- Recorrido horizontal de 3 canales con iconos SVG inline -->
+        <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:0.4rem;">
+
+          <!-- ORIGEN -->
+          <div class="box-black" style="text-align:center;padding:1.1rem 0.75rem;">
+            <div style="font-size:2rem;line-height:1;margin-bottom:0.3rem;">🌐</div>
+            <div class="kicker" style="color:#a1a1aa;margin-bottom:0.3rem;">Origen</div>
+            <div style="font-size:1rem;font-weight:700;color:#fff;">Webs, tiendas,<br>reseñas y datos</div>
+          </div>
+
+          <!-- Flecha -->
+          <div style="text-align:center;color:var(--ink-muted);font-size:1.6rem;font-weight:300;">→</div>
+
+          <!-- 3 CANALES CENTRALES (columna vertical) -->
+          <div style="display:flex;flex-direction:column;gap:0.55rem;">
+            <div class="box" style="padding:0.7rem 0.9rem;display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.5rem;">🔍</span>
+              <div>
+                <div class="kicker" style="color:var(--cobalt);">01 · Buscadores</div>
+                <div style="font-weight:700;font-size:0.95rem;">Google · Bing</div>
+                <div style="font-size:0.82rem;color:var(--ink-muted);">Rastrean la web pública</div>
+              </div>
+            </div>
+            <div class="box" style="padding:0.7rem 0.9rem;display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.5rem;">📱</span>
+              <div>
+                <div class="kicker" style="color:var(--cobalt);">02 · Plataformas</div>
+                <div style="font-weight:700;font-size:0.95rem;">Maps · TikTok · Amazon</div>
+                <div style="font-size:0.82rem;color:var(--ink-muted);">Ecosistemas cerrados</div>
+              </div>
+            </div>
+            <div class="box-cobalt" style="padding:0.7rem 0.9rem;display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.5rem;">🤖</span>
+              <div>
+                <div class="kicker" style="color:rgba(255,255,255,0.7);">03 · Asistentes IA</div>
+                <div style="font-weight:700;font-size:0.95rem;">ChatGPT · Gemini · Perplexity</div>
+                <div style="font-size:0.82rem;color:rgba(255,255,255,0.78);">Síntesis y recomendación directa</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flecha -->
+          <div style="text-align:center;color:var(--ink-muted);font-size:1.6rem;font-weight:300;">→</div>
+
+          <!-- DECISIÓN DEL COMPRADOR -->
+          <div style="display:flex;flex-direction:column;gap:0.55rem;">
+            <div class="box" style="padding:0.6rem 0.9rem;display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.3rem;">🖱️</span>
+              <div style="font-size:0.88rem;"><strong>Clic en un resultado</strong><br><span style="color:var(--ink-muted);">Visita la web</span></div>
+            </div>
+            <div class="box" style="padding:0.6rem 0.9rem;display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.3rem;">📍</span>
+              <div style="font-size:0.88rem;"><strong>Ruta en Maps</strong><br><span style="color:var(--ink-muted);">Va a la tienda</span></div>
+            </div>
+            <div class="box" style="padding:0.6rem 0.9rem;display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.3rem;">⚡</span>
+              <div style="font-size:0.88rem;"><strong>Zero-Click</strong><br><span style="color:var(--ink-muted);">Decide sin clic</span></div>
+            </div>
+          </div>
+
+          <!-- Flecha -->
+          <div style="text-align:center;color:var(--cobalt);font-size:1.6rem;font-weight:300;">→</div>
+
+          <!-- DESTINO -->
+          <div class="box" style="text-align:center;padding:1.1rem 0.75rem;border:2px solid var(--cobalt);">
+            <div style="font-size:2rem;line-height:1;margin-bottom:0.3rem;">🛒</div>
+            <div class="kicker" style="color:var(--cobalt);margin-bottom:0.3rem;">Destino</div>
+            <div style="font-size:1rem;font-weight:700;">Comprador<br>decide</div>
+          </div>
+
+        </div>
+
+        <div class="rule-note">
+          <strong>Clave:</strong> El cliente no sigue un camino recto. Puede descubrir un producto en TikTok, preguntar a la IA cuál merece la pena, buscar el precio en Google y usar Maps para ir a la tienda física — o decidir sin hacer ningún clic.
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>1. Cómo encontramos información</span>
+        <span>05 / 16</span>
+      </div>
+    </section>
+
+    <!-- 04 · 1. QUÉ HACE UN BUSCADOR (GRÁFICO) -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información ]</span>
+        <span class="tag-box">Qué hace un buscador</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.8rem;">
+        <h2>Qué hace un buscador paso a paso.</h2>
+
+        <div class="box" style="padding:0.85rem 1.05rem;">
+          <svg viewBox="0 0 980 410" width="100%" aria-label="Diagrama de funcionamiento de un buscador en 5 pasos">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#111111"/>
+              </marker>
+              <marker id="arr-c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#1428f5"/>
+              </marker>
+            </defs>
+
+            <!-- USUARIO -->
+            <rect x="20" y="35" width="170" height="120" fill="#efefec" stroke="#111111" stroke-width="2"/>
+            <circle cx="105" cy="72" r="18" fill="#111111"/>
+            <path d="M74 120 C74 98 136 98 136 120" fill="#111111"/>
+            <text x="105" y="144" text-anchor="middle" font-size="14" font-weight="700" fill="#111111">USUARIO</text>
+
+            <!-- BUSCADOR -->
+            <rect x="315" y="25" width="320" height="135" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+            <rect x="315" y="25" width="320" height="40" fill="#1428f5"/>
+            <text x="475" y="51" text-anchor="middle" font-size="16" font-weight="800" fill="#ffffff" letter-spacing="1">BUSCADOR</text>
+            <rect x="330" y="78" width="90" height="68" fill="#efefec" stroke="#111111"/>
+            <text x="375" y="117" text-anchor="middle" font-size="15" font-weight="700" fill="#111111">Web</text>
+            <rect x="430" y="78" width="190" height="68" fill="#efefec" stroke="#111111"/>
+            <text x="525" y="108" text-anchor="middle" font-size="14" font-weight="700" fill="#111111">Motor de</text>
+            <text x="525" y="128" text-anchor="middle" font-size="14" font-weight="700" fill="#111111">catalogación</text>
+
+            <!-- BASE DE DATOS -->
+            <rect x="760" y="25" width="195" height="135" fill="#111111"/>
+            <ellipse cx="857" cy="52" rx="56" ry="12" fill="none" stroke="#ffffff" stroke-width="2"/>
+            <path d="M801 52 L801 118 A56 12 0 0 0 913 118 L913 52" fill="none" stroke="#ffffff" stroke-width="2"/>
+            <path d="M801 84 A56 12 0 0 0 913 84" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+            <text x="857" y="146" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">BASE DE DATOS</text>
+
+            <!-- LA WEB / INTERNET -->
+            <rect x="315" y="265" width="320" height="115" fill="#efefec" stroke="#111111" stroke-width="2"/>
+            <text x="475" y="305" text-anchor="middle" font-size="17" font-weight="800" fill="#111111">LA WEB / INTERNET</text>
+            <text x="475" y="332" text-anchor="middle" font-size="13" fill="#555550">Millones de páginas, tiendas,</text>
+            <text x="475" y="352" text-anchor="middle" font-size="13" fill="#555550">fichas locales y enlaces</text>
+
+            <!-- FLECHA 4 -->
+            <line x1="196" y1="70" x2="306" y2="70" stroke="#111111" stroke-width="2.5" marker-end="url(#arr)"/>
+            <text x="251" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111111">Búsqueda</text>
+            <line x1="306" y1="115" x2="196" y2="115" stroke="#1428f5" stroke-width="2.5" marker-end="url(#arr-c)"/>
+            <text x="251" y="136" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1428f5">Resultados</text>
+            <circle cx="251" cy="24" r="14" fill="#1428f5"/>
+            <text x="251" y="29" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">4</text>
+
+            <!-- FLECHA 3 -->
+            <line x1="642" y1="92" x2="752" y2="92" stroke="#111111" stroke-width="2.5" marker-end="url(#arr)"/>
+            <text x="697" y="80" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111111">Indexación</text>
+            <circle cx="697" cy="45" r="14" fill="#1428f5"/>
+            <text x="697" y="50" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">3</text>
+
+            <!-- FLECHA 1 -->
+            <path d="M 857 168 L 857 322 L 645 322" fill="none" stroke="#111111" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#arr)"/>
+            <circle cx="685" cy="222" r="14" fill="#1428f5"/>
+            <text x="685" y="227" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">1</text>
+            <text x="710" y="218" font-size="12.5" font-weight="700" fill="#111111">Robots / arañas rastrean la Web</text>
+            <text x="710" y="238" font-size="12" fill="#555550">y analizan texto para construir</text>
+            <text x="710" y="256" font-size="12" fill="#555550">un catálogo ordenado.</text>
+
+            <!-- FLECHA 2 -->
+            <line x1="475" y1="260" x2="475" y2="168" stroke="#111111" stroke-width="2.5" marker-end="url(#arr)"/>
+            <circle cx="430" cy="215" r="14" fill="#1428f5"/>
+            <text x="430" y="220" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">2</text>
+            <text x="490" y="218" font-size="12.5" font-weight="700" fill="#111111">Recolección de datos</text>
+
+            <!-- FLECHA 5 -->
+            <path d="M 95 162 L 95 322 L 306 322" fill="none" stroke="#1428f5" stroke-width="2.5" marker-end="url(#arr-c)"/>
+            <circle cx="145" cy="222" r="14" fill="#1428f5"/>
+            <text x="145" y="227" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">5</text>
+            <text x="170" y="218" font-size="12.5" font-weight="700" fill="#111111">El usuario accede al sitio</text>
+            <text x="170" y="238" font-size="12" fill="#555550">utilizando su URL (o decide</text>
+            <text x="170" y="256" font-size="12" fill="#555550">en pantalla si es Zero-Click).</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>1. Cómo encontramos información</span>
+        <span>06 / 16</span>
+      </div>
+    </section>
+
+    <!-- 05 · 1. RASTREO, INDEXACIÓN Y RANKING (GOOGLE SEARCH CENTRAL) -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información · Fuente oficial Google ]</span>
+        <span class="tag-box">Las 3 fases</span>
+      </div>
+
+      <div class="slide-content" style="gap:1rem;">
+        <h2>Rastreo, indexación y publicación de resultados.</h2>
+
+        <div class="sys-list">
+          <div class="axis-line"></div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title">1. Rastreo (Crawling)</span><span class="idx-badge">01</span></div>
+            <div class="sys-right">Programas automáticos (<em>Googlebot</em>) exploran la web saltando de enlace en enlace o leyendo <em>sitemaps</em> para descargar texto, imágenes y vídeo.</div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title">2. Indexación (Indexing)</span><span class="idx-badge">02</span></div>
+            <div class="sys-right">Google analiza de qué trata cada página, descarta duplicados y la guarda en su índice. <strong>Que te rastreen no garantiza estar indexado.</strong></div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title">3. Resultados (Serving)</span><span class="idx-badge">03</span></div>
+            <div class="sys-right">Ante una consulta, ordena las páginas más relevantes según ubicación, idioma, dispositivo y calidad — y alimenta también a sus respuestas de IA.</div>
+          </div>
+        </div>
+
+        <div class="rule-note">
+          <strong>Recurso oficial para clase:</strong> <a href="https://developers.google.com/search/docs/fundamentals/how-search-works?hl=es" target="_blank" rel="noopener">Guía en español de Google Search Central</a> · Sus vídeos oficiales (<em>How Search Works</em>) están en inglés con subtítulos traducibles al español en YouTube.
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>1. Cómo encontramos información</span>
+        <span>07 / 16</span>
+      </div>
+    </section>
+
+    <!-- 06 · 1. INTENCIONES DE BÚSQUEDA -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información ]</span>
+        <span class="tag-box">Intención del usuario</span>
+      </div>
+
+      <div class="slide-content" style="gap:1.1rem;">
+        <h2>Qué busca realmente el cliente detrás de cada consulta.</h2>
+
+        <div class="grid-4">
+          <div class="box">
+            <span class="kicker" style="color:var(--cobalt);">01 · Informacional</span>
+            <h3>Quiere aprender</h3>
+            <p style="margin:0;color:var(--ink);">Busca resolver una duda o entender un producto.</p>
+            <p style="margin:0.6rem 0 0;font-size:0.84rem;"><em>Ej: "diferencia entre zapatilla neutra y pronadora"</em></p>
+          </div>
+          <div class="box">
+            <span class="kicker" style="color:var(--cobalt);">02 · Navegacional</span>
+            <h3>Busca un sitio</h3>
+            <p style="margin:0;color:var(--ink);">Ya conoce la marca o tienda y quiere ir directo a ella.</p>
+            <p style="margin:0.6rem 0 0;font-size:0.84rem;"><em>Ej: "Runners Centro horario"</em></p>
+          </div>
+          <div class="box">
+            <span class="kicker" style="color:var(--cobalt);">03 · Comercial</span>
+            <h3>Compara opciones</h3>
+            <p style="margin:0;color:var(--ink);">Evalúa modelos, reseñas y tiendas antes de decidir.</p>
+            <p style="margin:0.6rem 0 0;font-size:0.84rem;"><em>Ej: "mejores tiendas running en mi ciudad"</em></p>
+          </div>
+          <div class="box-cobalt">
+            <span class="kicker" style="color:#fff;">04 · Transaccional</span>
+            <h3>Listo para comprar</h3>
+            <p style="margin:0;">Tiene la tarjeta o la decisión tomada para ir o pedir.</p>
+            <p style="margin:0.6rem 0 0;font-size:0.84rem;"><em>Ej: "comprar Pegasus 41 oferta cerca de mí"</em></p>
+          </div>
+        </div>
+
+        <div class="rule-note">
+          <strong>Clave comercial:</strong> Según la intención de búsqueda, Google cambia por completo el tipo de resultado que muestra (texto, vídeo, mapa local o ficha de producto).
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>1. Cómo encontramos información</span>
+        <span>08 / 16</span>
+      </div>
+    </section>
+
+    <!-- 07 · 1. TIPOS DE RESULTADOS EN GOOGLE (PARTE 1: GALERÍA OFICIAL) -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información · Galería Google ]</span>
+        <span class="tag-box">Appearance · Parte 1</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.75rem;">
+        <h2>Tipos de resultados en Google: Atribución y Rich Results.</h2>
+
+        <!-- Ejemplo real de SERP con anotaciones -->
+        <div style="display:flex;gap:1.1rem;align-items:flex-start;">
+
+          <!-- Imagen SERP real -->
+          <div style="flex:1 1 55%;position:relative;">
+            <img src="serp_rich_result_ejemplo.png"
+                 alt="Captura real de Google: resultado de Idealo con favicon, title link, snippet y Rich Result (precio + estrellas)"
+                 style="width:100%;border:1px solid var(--stone-line);display:block;" />
+
+            <!-- Etiquetas flotantes sobre la imagen -->
+            <div style="position:absolute;top:10%;left:-1px;transform:translateY(-50%);">
+              <span style="background:var(--cobalt);color:#fff;font-family:var(--mono);font-size:0.68rem;font-weight:700;padding:2px 7px;letter-spacing:0.04em;">01 · FAVICON + URL</span>
+            </div>
+            <div style="position:absolute;top:42%;left:-1px;transform:translateY(-50%);">
+              <span style="background:var(--ink);color:#fff;font-family:var(--mono);font-size:0.68rem;font-weight:700;padding:2px 7px;letter-spacing:0.04em;">02 · TITLE LINK + SNIPPET</span>
+            </div>
+            <div style="position:absolute;top:78%;left:-1px;transform:translateY(-50%);">
+              <span style="background:var(--cobalt);color:#fff;font-family:var(--mono);font-size:0.68rem;font-weight:700;padding:2px 7px;letter-spacing:0.04em;">03 · RICH RESULT ★</span>
+            </div>
+          </div>
+
+          <!-- Leyenda lateral -->
+          <div style="flex:1 1 42%;display:flex;flex-direction:column;gap:0.6rem;">
+            <div class="box" style="padding:0.65rem 0.85rem;">
+              <span class="kicker" style="color:var(--cobalt);">[ 01 ] Atribución visual</span>
+              <p style="margin:0.3rem 0 0;font-size:0.88rem;color:var(--ink);"><strong>Favicon</strong> + nombre del sitio + <strong>ruta / breadcrumb</strong>. Identifica al comercio antes de que el usuario lea el título.</p>
+            </div>
+            <div class="box" style="padding:0.65rem 0.85rem;">
+              <span class="kicker" style="color:var(--cobalt);">[ 02 ] Texto clásico</span>
+              <p style="margin:0.3rem 0 0;font-size:0.88rem;color:var(--ink);"><strong>Title link</strong> (titular azul en el que se hace clic) + <strong>snippet</strong> (resumen de texto). Es el resultado orgánico base.</p>
+            </div>
+            <div class="box-cobalt" style="padding:0.65rem 0.85rem;">
+              <span class="kicker" style="color:#fff;">[ 03 ] Rich Results</span>
+              <p style="margin:0.3rem 0 0;font-size:0.88rem;"><strong>Precio · estrellas ★ · valoraciones</strong> visibles sin entrar a la web. Requieren <em>datos estructurados</em> en el código de la tienda.</p>
+            </div>
+            <div class="rule-note" style="font-size:0.8rem;">
+              <strong>Fuente oficial:</strong> <a href="https://developers.google.com/search/docs/appearance?hl=es" target="_blank" rel="noopener">Galería de elementos visuales de Google (es)</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>1. Cómo encontramos información</span>
+        <span>09 / 16</span>
+      </div>
+    </section>
+
+    <!-- 08 · 1. TIPOS DE RESULTADOS EN GOOGLE (PARTE 2 + LECTURA SERP 2026) -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información · Galería Google ]</span>
+        <span class="tag-box">Appearance · Parte 2</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.9rem;">
+        <h2>Multimedia, exploración, mapas e IA en una misma SERP.</h2>
+
+        <div class="serp-shell">
+          <div class="serp-bar">
+            <span>ANATOMÍA DE RESULTADOS · mejores zapatillas asfalto cerca de mí</span>
+            <span>[ SERP 2026 ]</span>
+          </div>
+
+          <div class="serp-zone">
+            <span class="zone-tag">Pago (SEM / Shopping)</span>
+            <div>Anuncios con foto, precio y tienda (<em>Patrocinado</em>).</div>
+          </div>
+
+          <div class="serp-zone" style="background:var(--cobalt-soft);">
+            <span class="zone-tag is-c">AI Overview (IA)</span>
+            <div><strong>Resumen generativo:</strong> responde arriba sin salir de Google citando 2–3 fuentes.</div>
+          </div>
+
+          <div class="serp-zone">
+            <span class="zone-tag">Exploración</span>
+            <div><strong>Otras preguntas de los usuarios (PAA)</strong>, carruseles y <strong>Paneles de conocimiento / Local Pack</strong> (Mapa con estrellas ★).</div>
+          </div>
+
+          <div class="serp-zone">
+            <span class="zone-tag">Imagen y Vídeo</span>
+            <div><strong>Miniaturas</strong> junto a textos, bloques de fotos y <strong>vídeos con momentos clave</strong> (timestamps).</div>
+          </div>
+
+          <div class="serp-zone">
+            <span class="zone-tag">Orgánico (Texto)</span>
+            <div>Resultados clásicos de texto y <em>Rich Results</em> (precios, reseñas), desplazados hacia abajo.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>1. Cómo encontramos información</span>
+        <span>10 / 16</span>
+      </div>
+    </section>
+
+    <!-- 10 · 1. ANTES Y AHORA: LA BÚSQUEDA CON IA -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 1. Cómo encontramos información · Cambio de paradigma ]</span>
+        <span class="tag-box">SGE / Gemini 2026</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.75rem;align-items:center;flex-direction:row;justify-content:center;">
+        <img src="cambios_google_ia.jpg"
+             alt="Antes y ahora: búsqueda tradicional vs búsqueda potenciada con IA de Google (SGE/Gemini)"
+             style="max-height:68vh;max-width:55%;object-fit:contain;border:1px solid var(--stone-line);background:#fff;" />
+        <div style="max-width:40%;display:flex;flex-direction:column;gap:1rem;padding-left:1rem;">
+          <h2>El buscador ya no solo lista webs.</h2>
+          <div class="sys-list">
+            <div class="axis-line"></div>
+            <div class="sys-row">
+              <div class="sys-left"><span class="sys-title">Antes</span><span class="idx-badge">clásico</span></div>
+              <div class="sys-right">Lista de enlaces azules ordenados por relevancia. El usuario explora y decide dónde hacer clic.</div>
+            </div>
+            <div class="sys-row">
+              <div class="sys-left"><span class="sys-title">Ahora</span><span class="idx-badge">IA</span></div>
+              <div class="sys-right"><strong>AI Overview (SGE/Gemini)</strong> responde directamente arriba, con resumen, fotos y sugerencias de seguimiento, antes de cualquier enlace orgánico.</div>
+            </div>
+          </div>
+          <div class="rule-note">
+            <strong>Implicación:</strong> Si tu negocio no aparece en las fuentes citadas por la IA, no existe para ese usuario — aunque estés bien posicionado en los resultados clásicos.
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>1. Cómo encontramos información</span>
+        <span>11 / 16</span>
+      </div>
+    </section>
+
+    <!-- 11 · 2. ELEGIR HERRAMIENTA Y FORMULAR PREGUNTAS -->
+    <section class="slide is-cobalt">
+      <div class="slide-top">
+        <span class="kicker">[ 2. Buscar con intención y con ayuda de IA ]</span>
+        <span class="tag-box">Criterio de búsqueda</span>
+      </div>
+
+      <div class="slide-content" style="gap:1.1rem;">
+        <h2>Formular bien la pregunta y elegir la herramienta adecuada.</h2>
+
+        <table class="swiss-table" style="color:var(--ink);">
+          <thead>
+            <tr>
+              <th style="width:26%;">Objetivo comercial</th>
+              <th style="width:26%;">Herramienta ideal</th>
+              <th style="width:48%;">Cómo preguntar mejor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tiendas o competidores locales</strong></td>
+              <td>Google Maps / Apple Maps</td>
+              <td>Sector + barrio/ciudad + filtro de <em>Abierto ahora</em> y reseñas recientes.</td>
+            </tr>
+            <tr>
+              <td><strong>Informes, leyes o catálogos</strong></td>
+              <td>Buscador web (Google)</td>
+              <td>Palabras clave exactas + operadores avanzados (<code>site:</code>, <code>filetype:pdf</code>).</td>
+            </tr>
+            <tr>
+              <td><strong>Comparar, resumir o idear</strong></td>
+              <td>Asistente IA (Perplexity, ChatGPT, Gemini)</td>
+              <td>Prompt con rol, contexto comercial, criterios claros y petición de fuentes.</td>
+            </tr>
+            <tr>
+              <td><strong>Cifras oficiales y precios reales</strong></td>
+              <td>Fuente primaria directa</td>
+              <td>Confirmar directamente en INE, CNMC, BOE o web oficial del fabricante.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="slide-foot">
+        <span>2. Buscar con intención y con ayuda de IA</span>
+        <span>12 / 16</span>
+      </div>
+    </section>
+
+    <!-- 10 · 2. BÚSQUEDA AVANZADA (OPERADORES) -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 2. Buscar con intención y con ayuda de IA ]</span>
+        <span class="tag-box">Operadores de búsqueda</span>
+      </div>
+
+      <div class="slide-content">
+        <h2 style="margin-bottom:1rem;">Cinco operadores para filtrar ruido y encontrar datos reales.</h2>
+
+        <div class="sys-list">
+          <div class="axis-line"></div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title"><code>"frase exacta"</code></span><span class="idx-badge">01</span></div>
+            <div class="sys-right">Fuerza el orden literal de las palabras. Ej: <code>"comercio minorista" 2026</code>.</div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title"><code>site:dominio.es</code></span><span class="idx-badge">02</span></div>
+            <div class="sys-right">Busca solo dentro de una web concreta. Ej: <code>site:ine.es ventas minoristas</code>.</div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title"><code>filetype:pdf</code></span><span class="idx-badge">03</span></div>
+            <div class="sys-right">Localiza informes, estudios o catálogos completos. Ej: <code>tendencias retail filetype:pdf</code>.</div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title"><code>-término</code></span><span class="idx-badge">04</span></div>
+            <div class="sys-right">Elimina resultados no deseados. Ej: <code>escaparatismo tienda -curso -empleo</code>.</div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-left"><span class="sys-title"><code>A OR B</code></span><span class="idx-badge">05</span></div>
+            <div class="sys-right">Combina sinónimos o marcas. Ej: <code>"fidelización" OR "CRM" pymes</code>.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>2. Buscar con intención y con ayuda de IA</span>
+        <span>13 / 16</span>
+      </div>
+    </section>
+
+    <!-- 11 · 2. COLABORAR CON ASISTENTES DE IA -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 2. Buscar con intención y con ayuda de IA ]</span>
+        <span class="tag-box">Prompts efectivos</span>
+      </div>
+
+      <div class="slide-content" style="gap:1.1rem;">
+        <h2>Colaborar con asistentes de IA sin obtener respuestas genéricas.</h2>
+
+        <div class="grid-2">
+          <div class="box">
+            <span class="kicker">Prompt débil (evitar)</span>
+            <h3 style="margin-top:0.4rem;">"Dime cómo vender más en una tienda."</h3>
+            <p style="margin-top:0.8rem;">Resultado: consejos obvios, sin contexto local, sin cifras ni fuentes verificables.</p>
+          </div>
+
+          <div class="box-cobalt">
+            <span class="kicker" style="color:#fff;">Prompt profesional (4 piezas)</span>
+            <ul class="clean" style="margin-top:0.4rem;">
+              <li><strong>1. Rol:</strong> "Actúa como consultor de retail omnicanal."</li>
+              <li><strong>2. Contexto:</strong> "Tienda física de calzado urbano en el centro de Valencia, ticket medio 95 €."</li>
+              <li><strong>3. Tarea:</strong> "Propón 5 acciones para atraer tráfico local esta temporada en tabla."</li>
+              <li><strong>4. Control:</strong> "Cita fuentes si das datos e indica qué es estimación."</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="rule-note">
+          <strong>Regla de oro:</strong> Con la IA se <em>itera</em>. Si la primera respuesta es vaga, pídele que acote por presupuesto, por perfil de cliente o que critique su propia propuesta.
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>2. Buscar con intención y con ayuda de IA</span>
+        <span>14 / 16</span>
+      </div>
+    </section>
+
+    <!-- 12 · 2. REGISTRAR Y ORGANIZAR FUENTES -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ 2. Buscar con intención y con ayuda de IA ]</span>
+        <span class="tag-box">Organización</span>
+      </div>
+
+      <div class="slide-content" style="gap:1.1rem;">
+        <h2>Registrar y organizar las fuentes encontradas.</h2>
+
+        <div class="grid-3">
+          <div class="box">
+            <span class="kicker" style="color:var(--cobalt);">[ 01 ] Ficha mínima</span>
+            <h3>Qué guardar siempre</h3>
+            <p style="margin:0;">Título + URL exacta + Entidad o autor + Fecha de consulta. Si no puedes volver a la fuente, el dato no sirve en un informe.</p>
+          </div>
+          <div class="box">
+            <span class="kicker" style="color:var(--cobalt);">[ 02 ] Clasificar calidad</span>
+            <h3>Separar hecho de opinión</h3>
+            <p style="margin:0;">Etiqueta si es <strong>dato oficial</strong> (INE, estudio sectorial), <strong>opinión/blog</strong> o <strong>respuesta de IA pendiente de validar</strong>.</p>
+          </div>
+          <div class="box-black">
+            <span class="kicker" style="color:#fff;">[ 03 ] Dónde guardarlo</span>
+            <h3>Carpeta de proyecto</h3>
+            <p style="margin:0;">Crea una hoja de cálculo o documento por proyecto (tu futuro Plan de Marketing de U08) para no perder enlaces entre sesiones.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>2. Buscar con intención y con ayuda de IA</span>
+        <span>15 / 16</span>
+      </div>
+    </section>
+
+    <!-- 13 · TALLER PRÁCTICO DE LA SESIÓN (30 MIN) -->
+    <section class="slide">
+      <div class="slide-top">
+        <span class="kicker">[ Taller práctico · 30 minutos ]</span>
+        <span class="tag-box">Aplicación Puntos 1 y 2</span>
+      </div>
+
+      <div class="slide-content" style="gap:0.9rem;">
+        <h2>Misión en aula: radiografía de búsqueda e IA.</h2>
+
+        <div class="grid-2">
+          <div class="box">
+            <h3>Instrucciones</h3>
+            <ul class="clean">
+              <li><strong>01 · Elige un sector comercial local</strong> (ej. óptica, tienda de bicis, cafetería de especialidad, zapatería) en tu ciudad.</li>
+              <li><strong>02 · Analiza la SERP de Google:</strong> busca <em>"[producto] en [ciudad]"</em> y anota qué <strong>tipos de resultados visuales</strong> aparecen (SEM, AI Overview, Local Pack, Rich Results, imágenes, PAA).</li>
+              <li><strong>03 · Usa operadores avanzados:</strong> ejecuta una búsqueda con <code>site:</code> o <code>filetype:pdf</code> para encontrar un dato oficial o informe real de ese sector.</li>
+              <li><strong>04 · Consulta a una IA:</strong> usa un prompt de 4 piezas pidiendo fuentes y registra 3 enlaces válidos en tu ficha.</li>
+            </ul>
+          </div>
+
+          <div class="box-cobalt">
+            <div class="kicker" style="color:#fff;margin-bottom:0.5rem;">Ficha de entrega (Sesión 1)</div>
+            <ul style="list-style:none;padding:0;margin:0;font-size:0.9rem;display:flex;flex-direction:column;gap:0.5rem;">
+              <li><strong>Sector y ciudad elegidos:</strong> __________________</li>
+              <li><strong>Tipos de resultado vistos en SERP:</strong> __________</li>
+              <li><strong>¿Aparece AI Overview / Local Pack?:</strong> Sí / No</li>
+              <li><strong>Operador usado y documento hallado:</strong> ______</li>
+              <li><strong>Prompt utilizado con la IA:</strong> ________________</li>
+              <li><strong>3 fuentes registradas (Título + URL + Fecha):</strong>
+                <div style="margin-top:4px;font-size:0.84rem;opacity:0.9;">
+                  1. _______________________<br>
+                  2. _______________________<br>
+                  3. _______________________
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-foot">
+        <span>Próxima sesión: Punto 3 (Verificar antes de creer o publicar)</span>
+        <span>16 / 16</span>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fsBtn = document.getElementById('fsBtn');
+    const modeBtn = document.getElementById('modeBtn');
+    const printBtn = document.getElementById('printBtn');
+
+    let current = 0;
+
+    function pad(n) {
+      return n < 10 ? '0' + n : '' + n;
+    }
+
+    function updateDeck() {
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+      counter.textContent = `${pad(current + 1)} / ${pad(slides.length)}`;
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+    }
+
+    function go(delta) {
+      if (document.body.classList.contains('study-mode')) return;
+      const next = current + delta;
+      if (next >= 0 && next < slides.length) {
+        current = next;
+        updateDeck();
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    prevBtn.addEventListener('click', () => go(-1));
+    nextBtn.addEventListener('click', () => go(1));
+    fsBtn.addEventListener('click', toggleFullscreen);
+
+    document.addEventListener('fullscreenchange', () => {
+      fsBtn.textContent = document.fullscreenElement ? '[ Salir pantalla completa ]' : '[ Pantalla completa ]';
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.key === 'ArrowRight' || e.key === ' ') {
+        if (!document.body.classList.contains('study-mode')) {
+          e.preventDefault();
+          go(1);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (!document.body.classList.contains('study-mode')) {
+          e.preventDefault();
+          go(-1);
+        }
+      }
+    });
+
+    modeBtn.addEventListener('click', () => {
+      const isStudy = document.body.classList.toggle('study-mode');
+      document.documentElement.classList.toggle('study-mode', isStudy);
+      modeBtn.textContent = isStudy ? '[ Modo Presentación ]' : '[ Modo Apuntes ]';
+      if (!isStudy) updateDeck();
+    });
+
+    printBtn.addEventListener('click', () => window.print());
+
+    updateDeck();
+  </script>
+</body>
+</html>
